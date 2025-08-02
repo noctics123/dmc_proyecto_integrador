@@ -1,0 +1,21 @@
+substitutions:
+  _REGION: "us-west2"
+
+steps:
+  # (opcional) mantener actualizado el script en GCS
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        gsutil cp scripts/spark_etl.py gs://dmc_proy_storage/spark/spark_etl.py || true
+
+  # lanzar batch serverless
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        gcloud dataproc batches submit pyspark gs://dmc_proy_storage/spark/spark_etl.py \
+          --region=$_REGION \
+          --project=$PROJECT_ID
