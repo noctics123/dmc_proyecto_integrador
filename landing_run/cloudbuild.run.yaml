@@ -1,0 +1,22 @@
+substitutions:
+  _SERVICE: "landing-scraper"
+  _REGION: "us-west2"
+  _BUCKET: "dmc_proy_storage"
+
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: 'landing_run'
+    args: ['build','-t','gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA','.']
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    dir: 'landing_run'
+    args: [
+      'run','deploy','${_SERVICE}',
+      '--image','gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA',
+      '--region','${_REGION}','--platform','managed',
+      '--set-env-vars','GCS_BUCKET=${_BUCKET},LANDING_PREFIX=landing',
+      '--allow-unauthenticated'  # o quítalo si usarás IAM
+    ]
+
+images:
+  - 'gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA'
