@@ -36,7 +36,7 @@ steps:
       - '--platform'
       - 'managed'
       - '--set-env-vars'
-      - 'GCS_BUCKET=${_BUCKET},LANDING_PREFIX=landing'
+      - 'GCS_BUCKET=${_BUCKET},LANDING_PREFIX=landing/macroeconomics'
 
 images:
   - 'gcr.io/$PROJECT_ID/landing-scraper:$SHORT_SHA'
