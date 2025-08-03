@@ -1,3 +1,4 @@
+# cloudbuild/cloudbuild.yaml
 options:
   logging: CLOUD_LOGGING_ONLY
 
@@ -9,22 +10,21 @@ substitutions:
 steps:
   # 1) Build
   - name: 'gcr.io/cloud-builders/docker'
-    dir: 'landing_run'
+    dir: '.'
     args:
       - 'build'
       - '-t'
       - 'gcr.io/$PROJECT_ID/landing-scraper:$SHORT_SHA'
       - '.'
 
-  # 2) Push (necesario para que Run encuentre la imagen)
+  # 2) Push
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
       - 'gcr.io/$PROJECT_ID/landing-scraper:$SHORT_SHA'
 
-  # 3) Deploy (sin --allow-unauthenticated)
-  - name: 'gcr.io/cloud-builders/gcloud'
-    dir: 'landing_run'
+  # 3) Deploy
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     args:
       - 'run'
       - 'deploy'
@@ -36,7 +36,11 @@ steps:
       - '--platform'
       - 'managed'
       - '--set-env-vars'
-      - 'GCS_BUCKET=${_BUCKET},LANDING_PREFIX=landing/macroeconomics'
+      - 'GCS_BUCKET=${_BUCKET},LANDING_PREFIX=landing/macroeconomics,POWERBI_RESOURCE_KEY=d2d3b042-b343-4f05-85cb-be05eb64dd22,PORT=8080'
+      - '--timeout=900'
+      - '--memory=4Gi'
+      - '--cpu=2'
+      - '--allow-unauthenticated'
 
 images:
   - 'gcr.io/$PROJECT_ID/landing-scraper:$SHORT_SHA'
