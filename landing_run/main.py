@@ -541,8 +541,9 @@ def healthz():
     }
 
 @app.post("/run")
-def run(body: Dict[str, Any] = Body(default={})):
-    return {"ok": True, **run_pipeline(body.get("run_date"))}
+def run(body: Optional[Dict[str, Any]] = Body(default=None)):
+    run_date = body.get("run_date") if body else None
+    return {"ok": True, **run_pipeline(run_date)}
 
 if __name__ == "__main__":
     import uvicorn
