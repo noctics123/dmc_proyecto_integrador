@@ -7,9 +7,13 @@ import pandas as pd
 import logging
 from fastapi import FastAPI, Body, HTTPException
 from google.cloud import storage
-from scrapers.inflacion import extract_inflacion_12m
-from scrapers.tipo_cambio import extract_tipo_cambio
-from scrapers.desempleo import extract_desempleo_imf
+try:
+    from scrapers.inflacion import extract_inflacion_12m
+    from scrapers.tipo_cambio import extract_tipo_cambio
+    from scrapers.desempleo import extract_desempleo_imf
+except ImportError as e:
+    logging.error(f"Failed to import scraper modules: {str(e)}")
+    raise
 
 # Configure logging
 from google.cloud import logging as gcp_logging
@@ -39,18 +43,22 @@ def _normalize_date(run_date: Optional[str]) -> str:
     return d.isoformat()
 
 def _save_df_to_gcs(df: pd.DataFrame, dataset: str, date_str: str, filename: str) -> str:
-    object_name = f"{BASE_PREFIX}/{dataset}/dt={date_str}/{filename}"
-    client = storage.Client()
-    bkt = client.bucket(BUCKET)
-    blob = bkt.blob(object_name)
+    try:
+        object_name = f"{BASE_PREFIX}/{dataset}/dt={date_str}/{filename}"
+        client = storage.Client()
+        bkt = client.bucket(BUCKET)
+        blob = bkt.blob(object_name)
 
-    with tempfile.NamedTemporaryFile(suffix=".csv", delete=True) as tmp:
-        df.to_csv(tmp.name, index=False, encoding="utf-8")
-        blob.upload_from_filename(tmp.name, content_type="text/csv")
+        with tempfile.NamedTemporaryFile(suffix=".csv", delete=True) as tmp:
+            df.to_csv(tmp.name, index=False, encoding="utf-8")
+            blob.upload_from_filename(tmp.name, content_type="text/csv")
 
-    path = f"gs://{BUCKET}/{object_name}"
-    logger.info(f"[WRITE] Saved to {path}")
-    return path
+        path = f"gs://{BUCKET}/{object_name}"
+        logger.info(f"[WRITE] Saved to {path}")
+        return path
+    except Exception as e:
+        logger.error(f"Failed to save to GCS: {str(e)}")
+        raise
 
 # ---------- Pipeline ----------
 def run_pipeline(run_date: Optional[str] = None) -> Dict[str, Any]:
