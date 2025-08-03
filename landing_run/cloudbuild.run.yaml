@@ -4,7 +4,7 @@ options:
 substitutions:
   _SERVICE: "landing-scraper"
   _REGION: "us-west2"
-  _BUCKET: "dmc_proy_storage"
+  _BUCKET: "proyecto-dae-2025-datalake" #antiguo bucket proyecto ruben dmc_proy_storage
 
 steps:
   # 1) Build
