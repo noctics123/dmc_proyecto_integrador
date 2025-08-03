@@ -1,22 +1,42 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 substitutions:
   _SERVICE: "landing-scraper"
   _REGION: "us-west2"
   _BUCKET: "dmc_proy_storage"
 
 steps:
+  # 1) Build
   - name: 'gcr.io/cloud-builders/docker'
     dir: 'landing_run'
-    args: ['build','-t','gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA','.']
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/landing-scraper:$SHORT_SHA'
+      - '.'
 
+  # 2) Push (necesario para que Run encuentre la imagen)
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/landing-scraper:$SHORT_SHA'
+
+  # 3) Deploy (sin --allow-unauthenticated)
   - name: 'gcr.io/cloud-builders/gcloud'
     dir: 'landing_run'
-    args: [
-      'run','deploy','${_SERVICE}',
-      '--image','gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA',
-      '--region','${_REGION}','--platform','managed',
-      '--set-env-vars','GCS_BUCKET=${_BUCKET},LANDING_PREFIX=landing',
-      '--allow-unauthenticated'  # o quítalo si usarás IAM
-    ]
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE}'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/landing-scraper:$SHORT_SHA'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--set-env-vars'
+      - 'GCS_BUCKET=${_BUCKET},LANDING_PREFIX=landing/macroeconomics'
 
 images:
-  - 'gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/landing-scraper:$SHORT_SHA'

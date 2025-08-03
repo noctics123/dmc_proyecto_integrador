@@ -1,3 +1,7 @@
+options:
+  logging: CLOUD_LOGGING_ONLY   # o NONE
+
+
 substitutions:
   _REGION: "us-west2"
 

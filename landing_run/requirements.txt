@@ -1,5 +1,7 @@
-fastapi
-uvicorn
-google-cloud-storage
-pandas
-requests
+fastapi==0.116.1
+uvicorn==0.35.0
+pandas==2.3.1
+requests==2.32.4
+google-cloud-storage==3.2.0
+pyspark==3.5.1
+google-cloud-logging==3.11.2
