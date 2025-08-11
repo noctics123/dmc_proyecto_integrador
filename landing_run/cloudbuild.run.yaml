@@ -5,6 +5,7 @@ substitutions:
   _SERVICE: "landing-scraper"
   _REGION: "us-west2"
   _BUCKET: "dae-integrador-2025" #antiguo bucket proyecto ruben dmc_proy_storage
+  _LANDING_PREFIX: "lakehouse/landing/macroeconomics"
 
 steps:
   # 1) Build
@@ -36,7 +37,7 @@ steps:
       - '--platform'
       - 'managed'
       - '--set-env-vars'
-      - 'GCS_BUCKET=${_BUCKET},LANDING_PREFIX=lakehouse/landing/macroeconomics'
+      - 'GCS_BUCKET=${_BUCKET},LANDING_PREFIX=${_LANDING_PREFIX}'
 
 images:
   - 'gcr.io/$PROJECT_ID/landing-scraper:$SHORT_SHA'
