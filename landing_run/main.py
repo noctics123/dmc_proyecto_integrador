@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ========= CONFIG =========
-BUCKET = os.getenv("GCS_BUCKET", "dmc_proy_storage")
+BUCKET = os.getenv("GCS_BUCKET", "dae-integrador-2025")
 BASE_PREFIX = os.getenv("LANDING_PREFIX", "lakehouse/landing/macroeconomics")
 QUERY_URL = "https://wabi-us-east2-api.analysis.windows.net/public/reports/querydata?synchronous=true"
 HEADERS = {
