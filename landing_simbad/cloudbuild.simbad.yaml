@@ -6,7 +6,7 @@ substitutions:
   _REGION: "us-west2"
   _BUCKET: "dae-integrador-2025"
   _LANDING_PREFIX: "lakehouse/landing/simbad"
-  _SB_API_KEY: "dff2111ccbcd44c2ac47265b658949f3"   # ideal: mover a Secret Manager
+  _SB_API_KEY: "dff2111ccbcd44c2ac47265b658949f3"   # usa Secret Manager si prefieres
   _SB_TIPO_ENTIDAD: "AAyP"
   _SB_START_YEAR: "2012"
   _SB_DATASET: "simbad_carteras_aayp_hipotecarios"
@@ -54,7 +54,7 @@ steps:
       - '--concurrency=4'
       - '--cpu=1'
       - '--memory=1Gi'
-      - '--allow-unauthenticated'  # quita esta línea si lo quieres privado
+      - '--allow-unauthenticated'
 
 images:
   - 'gcr.io/$PROJECT_ID/simbad-harvester:$SHORT_SHA'
