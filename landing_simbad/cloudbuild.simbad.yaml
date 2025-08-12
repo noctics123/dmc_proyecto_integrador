@@ -6,7 +6,7 @@ substitutions:
   _REGION: "us-west2"
   _BUCKET: "dae-integrador-2025"
   _LANDING_PREFIX: "lakehouse/landing/simbad"
-  _SB_API_KEY: "REEMPLAZA_CON_TU_SECRET"   # usa Secret Manager si prefieres
+  _SB_API_KEY: "dff2111ccbcd44c2ac47265b658949f3"   # ideal: mover a Secret Manager
   _SB_TIPO_ENTIDAD: "AAyP"
   _SB_START_YEAR: "2012"
   _SB_DATASET: "simbad_carteras_aayp_hipotecarios"
@@ -15,7 +15,7 @@ substitutions:
 steps:
   # 1) Build
   - name: 'gcr.io/cloud-builders/docker'
-    dir: 'simbad_run'
+    dir: 'landing_simbad'
     args:
       - 'build'
       - '-t'
@@ -30,7 +30,7 @@ steps:
 
   # 3) Deploy
   - name: 'gcr.io/cloud-builders/gcloud'
-    dir: 'simbad_run'
+    dir: 'landing_simbad'
     args:
       - 'run'
       - 'deploy'
@@ -54,8 +54,7 @@ steps:
       - '--concurrency=4'
       - '--cpu=1'
       - '--memory=1Gi'
-      # Quita si lo quieres privado
-      - '--allow-unauthenticated'
+      - '--allow-unauthenticated'  # quita esta línea si lo quieres privado
 
 images:
   - 'gcr.io/$PROJECT_ID/simbad-harvester:$SHORT_SHA'
