@@ -1,41 +1,30 @@
-import os
-import datetime as dt
+import os, datetime as dt
 from typing import Optional, Dict, Any
 from fastapi import FastAPI, Body, HTTPException
-from simbad.simbad import run_simbad_carteras  # lógica de extracción
-import logging
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# si tu módulo con la lógica está en landing_run/simbad/simbad.py
+# copialo a landing_simbad/simbad/simbad.py o ajusta el import.
+from simbad.simbad import run_simbad_carteras
 
 app = FastAPI(title="SIMBAD Harvester", version="1.0.0")
 
-BUCKET = os.getenv("GCS_BUCKET")
-BASE_PREFIX = os.getenv("LANDING_PREFIX")
-SB_API_KEY = os.getenv("SB_API_KEY")  # requerido por simbad.simbad
-
 def _require_env():
     missing = []
-    if not BUCKET: missing.append("GCS_BUCKET")
-    if not BASE_PREFIX: missing.append("LANDING_PREFIX")
-    if not SB_API_KEY: missing.append("SB_API_KEY")
+    for k in ["GCS_BUCKET", "LANDING_PREFIX", "SB_API_KEY"]:
+        if not os.getenv(k): missing.append(k)
     if missing:
-        msg = f"Missing env vars: {', '.join(missing)}"
-        logger.error(msg)
-        raise HTTPException(status_code=500, detail=msg)
+        raise HTTPException(status_code=500, detail=f"Missing env vars: {', '.join(missing)}")
 
-def _normalize_date(run_date: Optional[str]) -> str:
-    if run_date:
-        try:
-            return dt.date.fromisoformat(run_date).isoformat()
-        except ValueError:
-            raise HTTPException(status_code=400, detail=f"run_date debe ser YYYY-MM-DD; recibido: {run_date}")
+def _normalize_date(s: Optional[str]) -> str:
+    if s:
+        try: return dt.date.fromisoformat(s).isoformat()
+        except ValueError: raise HTTPException(status_code=400, detail="run_date debe ser YYYY-MM-DD")
     return dt.date.today().isoformat()
 
 @app.get("/healthz")
 def healthz():
     _require_env()
-    return {"status":"ok","bucket":BUCKET,"prefix":BASE_PREFIX}
+    return {"status":"ok"}
 
 @app.post("/run")
 def run(body: Optional[Dict[str, Any]] = Body(default=None)):
