@@ -9,6 +9,9 @@ from fastapi import FastAPI, Body, HTTPException
 from google.cloud import storage
 import logging
 
+from fastapi import FastAPI, Body, HTTPException
+from simbad import run_simbad_carteras
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -555,3 +558,15 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", "8080"))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
+
+@app.post("/run/simbad-carteras")
+def run_simbad(body: Optional[Dict[str, Any]] = Body(default=None)):
+    # usa misma convención de fecha/partición que tu pipeline
+    run_date = body.get("run_date") if body else None
+    try:
+        # reutiliza tu normalizador:
+        date_str = _normalize_date(run_date)
+        delete_monthlies = bool(body.get("delete_monthlies", False)) if body else False
+        return {"ok": True, **run_simbad_carteras(date_str, delete_monthlies)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"SIMBAD run failed: {e}")
