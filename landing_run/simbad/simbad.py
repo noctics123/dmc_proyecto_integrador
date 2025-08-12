@@ -184,3 +184,4 @@ def run_simbad_carteras(run_date_iso: str, delete_monthlies: bool = False):
     return {"saved": [*monthly_paths, final_path],
             "rows_final": len(df_all),
             "date_partition": f"dt={run_date_iso}"}
+
