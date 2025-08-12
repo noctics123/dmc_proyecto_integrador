@@ -1,4 +1,4 @@
-# simbad.py
+# landing_run/simbad/simbad.py
 import os, json, time, random, tempfile, datetime as dt
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Union
@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 BASE    = "https://apis.sb.gob.do/estadisticas/v2/"
 ENDPT   = "carteras/creditos"
 
+# envs (se validan en runtime desde el servicio)
 SB_API_KEY      = os.getenv("SB_API_KEY")
 SB_TIPO_ENTIDAD = os.getenv("SB_TIPO_ENTIDAD", "AAyP")
 SB_START_YEAR   = int(os.getenv("SB_START_YEAR", "2012"))
@@ -23,19 +24,15 @@ SB_KEEP_MONTHLY = os.getenv("SB_KEEP_MONTHLY", "false").lower() == "true"
 BUCKET      = os.getenv("GCS_BUCKET")
 BASE_PREFIX = os.getenv("LANDING_PREFIX")
 
-if not SB_API_KEY: raise ValueError("SB_API_KEY is required")
-if not BUCKET:     raise ValueError("GCS_BUCKET is required")
-if not BASE_PREFIX:raise ValueError("LANDING_PREFIX is required")
-
 HEADERS = {
-    "Ocp-Apim-Subscription-Key": SB_API_KEY,
+    "Ocp-Apim-Subscription-Key": SB_API_KEY or "",
     "Accept": "application/json",
     "User-Agent": "Mozilla/5.0",
 }
 
 def _now_year_month():
-    now = dt.date.today()
-    return now.year, now.month
+    today = dt.date.today()
+    return today.year, today.month
 
 def _expand_params(d: Dict[str, Union[str,int,List[str]]]) -> List[Tuple[str,str]]:
     out: List[Tuple[str,str]] = []
@@ -66,6 +63,8 @@ def _new_session(total=12, backoff=1.0, jitter=0.5) -> requests.Session:
 
 def _save_df_to_gcs_csv(df: pd.DataFrame, dataset: str, date_str: str, filename: str) -> str:
     """gs://<bucket>/<BASE_PREFIX>/<dataset>/dt=<date_str>/<filename>"""
+    if not BUCKET or not BASE_PREFIX:
+        raise RuntimeError("Faltan GCS_BUCKET o LANDING_PREFIX en el entorno")
     client = storage.Client()
     bucket = client.bucket(BUCKET)
     object_name = f"{BASE_PREFIX}/{dataset}/dt={date_str}/{filename}"
@@ -78,7 +77,7 @@ def _save_df_to_gcs_csv(df: pd.DataFrame, dataset: str, date_str: str, filename:
     return path
 
 def _fetch_month(sess: requests.Session, periodo: str, registros_pag=10000, attempts=3) -> pd.DataFrame:
-    """Descarga un mes completo para SB_TIPO_ENTIDAD; maneja paginación y reintentos del bloque."""
+    """Descarga un mes para SB_TIPO_ENTIDAD; maneja paginación + reintentos."""
     url = BASE + ENDPT
     for attempt in range(1, attempts+1):
         frames, pagina = [], 1
@@ -128,19 +127,19 @@ def _fetch_month(sess: requests.Session, periodo: str, registros_pag=10000, atte
             return pd.concat(frames, ignore_index=True)
     return pd.DataFrame()
 
-def run_simbad_carteras(run_date_iso: str, delete_monthlies: bool = False) -> Dict[str, Any]:
+def run_simbad_carteras(run_date_iso: str, delete_monthlies: bool = False):
     """
-    Baja 2012-01 → (año/mes actual), filtro 'Créditos Hipotecarios', 
-    sube: 
-      - CSV mensual (si KEEP_MONTHLY=True)
-      - CSV consolidado final (siempre)
-    Partición: dt=<run_date_iso> (misma convención que tu pipeline).
+    Baja 2012-01 → (año/mes actual), filtra 'Créditos Hipotecarios',
+    sube a GCS (partición dt=run_date_iso):
+      - CSV mensuales si SB_KEEP_MONTHLY=True.
+      - CSV consolidado (siempre).
     """
+    if not SB_API_KEY:
+        raise RuntimeError("SB_API_KEY es requerido")
     y_end, m_end = _now_year_month()
     sess = _new_session()
 
-    monthly_paths = []
-    dfs = []
+    monthly_paths, dfs = [], []
     for y in range(SB_START_YEAR, y_end + 1):
         for m in range(1, 13):
             if (y == y_end and m > m_end): break
@@ -150,21 +149,19 @@ def run_simbad_carteras(run_date_iso: str, delete_monthlies: bool = False) -> Di
             if df.empty:
                 logger.info(f"[SIMBAD] {periodo}: 0 filas")
                 continue
-            # filtro local
             if "tipoCartera" in df.columns:
                 df = df[df["tipoCartera"] == "Créditos Hipotecarios"]
             if df.empty:
                 logger.info(f"[SIMBAD] {periodo}: 0 tras filtro 'Créditos Hipotecarios'")
                 continue
             dfs.append(df)
-
             if SB_KEEP_MONTHLY:
                 fname = f"carteras_AAyP_hipotecarios_{periodo}.csv"
                 p = _save_df_to_gcs_csv(df, SB_DATASET, run_date_iso, fname)
                 monthly_paths.append(p)
 
     if not dfs:
-        return {"saved": [], "message": "No se obtuvieron filas", "date_partition": f"dt={run_date_iso}"}
+        return {"saved": [], "message": "Sin filas", "date_partition": f"dt={run_date_iso}"}
 
     df_all = pd.concat(dfs, ignore_index=True)
     start_str = f"{SB_START_YEAR}-01"
@@ -172,12 +169,11 @@ def run_simbad_carteras(run_date_iso: str, delete_monthlies: bool = False) -> Di
     final_name = f"carteras_AAyP_hipotecarios_{start_str}_a_{end_str}_full.csv"
     final_path = _save_df_to_gcs_csv(df_all, SB_DATASET, run_date_iso, final_name)
 
-    # opcional: borrar los mensuales del bucket si se pidio delete_monthlies=True
+    # delete mensuales si se pidió y existen
     if delete_monthlies and monthly_paths:
         client = storage.Client()
         bkt = client.bucket(BUCKET)
         for uri in monthly_paths:
-            # uri = gs://bucket/prefix/...
             _, _, rest = uri.partition(f"gs://{BUCKET}/")
             try:
                 bkt.blob(rest).delete()
@@ -185,4 +181,6 @@ def run_simbad_carteras(run_date_iso: str, delete_monthlies: bool = False) -> Di
             except Exception as e:
                 logger.warning(f"No se pudo borrar {uri}: {e}")
 
-    return {"saved": [*monthly_paths, final_path], "rows_final": len(df_all), "date_partition": f"dt={run_date_iso}"}
+    return {"saved": [*monthly_paths, final_path],
+            "rows_final": len(df_all),
+            "date_partition": f"dt={run_date_iso}"}
