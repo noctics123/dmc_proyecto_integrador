@@ -1,50 +1,45 @@
-# cloudbuild.simbad.job.yaml
-options:
-  logging: CLOUD_LOGGING_ONLY
-
+# landing_simbad/cloudbuild.simbad.job.yaml
 substitutions:
-  _REGION: "us-west2"
-  _AR_HOST: "us-docker.pkg.dev"
-  _AR_REPO: "containers"
-  _IMAGE: "simbad-harvester"
-  _JOB: "simbad-harvester-job"
-  _SA: "run-landing-simbad-sa@${PROJECT_ID}.iam.gserviceaccount.com"
-  _GCS_BUCKET: "TU_BUCKET"
-  _LANDING_PREFIX: "landing/simbad"
-  _SB_DATASET: "simbad_carteras_aayp_hipotecarios"
-  _SB_TIPO_ENTIDAD: "AAyP"
-  _SB_START_YEAR: "2012"
-  _SB_KEEP_MONTHLY: "false"
-  _SB_API_KEY_SECRET: "sb_api_key"
-  _TASK_TIMEOUT: "21600s"
-  _TASKS: "1"
-  _CPU: "2"
-  _MEMORY: "2Gi"
+  _REGION: us-west2
+  _AR_HOST: us-west2-docker.pkg.dev
+  _AR_REPO: containers
+  _IMAGE: simbad-harvester
+  _JOB: simbad-harvester-job
+  _SERVICE_ACCOUNT: run-landing-simbad-sa@${PROJECT_ID}.iam.gserviceaccount.com
+  _BUCKET: TU_BUCKET_DESTINO              # <-- cámbialo
+  _SB_SECRET: sb_api_key                  # <-- nombre del Secret Manager
 
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:${SHORT_SHA}', '.']
+# 1) Build
+- name: gcr.io/cloud-builders/docker
+  args: [ 'build', '-t', '${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:$COMMIT_SHA', 'landing_simbad' ]
 
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', '${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:${SHORT_SHA}']
+# 2) Push
+- name: gcr.io/cloud-builders/docker
+  args: [ 'push', '${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:$COMMIT_SHA' ]
 
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args:
-      - run
-      - jobs
-      - deploy
-      - '${_JOB}'
-      - '--image=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:${SHORT_SHA}'
-      - '--region=${_REGION}'
-      - '--service-account=${_SA}'
-      - '--tasks=${_TASKS}'
-      - '--task-timeout=${_TASK_TIMEOUT}'
-      - '--cpu=${_CPU}'
-      - '--memory=${_MEMORY}'
-      - '--max-retries=1'
-      - '--set-env-vars=GCS_BUCKET=${_GCS_BUCKET},LANDING_PREFIX=${_LANDING_PREFIX},SB_TIPO_ENTIDAD=${_SB_TIPO_ENTIDAD},SB_START_YEAR=${_SB_START_YEAR},SB_DATASET=${_SB_DATASET},SB_KEEP_MONTHLY=${_SB_KEEP_MONTHLY}'
-      - '--set-secrets=SB_API_KEY=${_SB_API_KEY_SECRET}:latest'
-      - '--execute-now'
+# 3) Crear/actualizar Job (timeout largo + envs + secreto)
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  entrypoint: bash
+  args:
+    - -c
+    - |
+      gcloud run jobs describe ${_JOB} --region ${_REGION} >/dev/null 2>&1 \
+      && ACTION=update || ACTION=create
+
+      gcloud run jobs ${ACTION} ${_JOB} \
+        --region ${_REGION} \
+        --image ${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:$COMMIT_SHA \
+        --service-account ${_SERVICE_ACCOUNT} \
+        --task-timeout=8h \
+        --max-retries=3 \
+        --set-env-vars=GCS_BUCKET=${_BUCKET} \
+        --set-env-vars=PYTHONUNBUFFERED=1 \
+        --set-secrets=SB_API_KEY=${_SB_SECRET}:latest
+
+# 4) Ejecutar inmediatamente (opcional)
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  args: [ 'run', 'jobs', 'execute', '${_JOB}', '--region', '${_REGION}', '--wait' ]
 
 images:
-  - '${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:${SHORT_SHA}'
+- ${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:$COMMIT_SHA

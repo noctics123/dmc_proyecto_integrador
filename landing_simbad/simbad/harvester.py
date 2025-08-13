@@ -1,203 +1,233 @@
 # landing_simbad/simbad/harvester.py
-from __future__ import annotations
-import os, json, time, random, io
-from typing import Dict, Any, List, Tuple, Iterable
-from datetime import datetime, date
-import requests
-import pandas as pd
-from urllib3.util.retry import Retry
-from requests.adapters import HTTPAdapter
-from google.cloud import storage
+import os
+import io
+import json
+import time
 import logging
+import datetime as dt
+from typing import List, Tuple
 
-BASE    = "https://apis.sb.gob.do/estadisticas/v2/"
-ENDPT   = "carteras/creditos"
+import pandas as pd
+import requests
+from google.cloud import storage
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
-def month_iter(y0: int, m0: int, y1: int, m1: int) -> Iterable[str]:
-    y, m = y0, m0
-    while (y < y1) or (y == y1 and m <= m1):
-        yield f"{y:04d}-{m:02d}"
-        m += 1
-        if m == 13:
-            y, m = y+1, 1
+log = logging.getLogger("simbad.harvester")
 
-def _expand_params(params: Dict[str, Any]) -> List[Tuple[str,str]]:
-    out: List[Tuple[str,str]] = []
-    for k,v in params.items():
-        if v is None:
-            continue
-        if isinstance(v, (list, tuple)):
-            for item in v:
-                out.append((k, str(item)))
-        else:
-            out.append((k, str(v)))
-    return out
 
-def new_session_with_retries(total=12, backoff=1.0, jitter=0.5) -> requests.Session:
-    sess = requests.Session()
-    retry = Retry(
-        total=total, connect=total, read=total, status=total,
-        backoff_factor=backoff,
-        status_forcelist=(429, 500, 502, 503, 504),
-        allowed_methods=frozenset(["GET"]),
-        raise_on_status=False,
-    )
-    adapter = HTTPAdapter(max_retries=retry, pool_connections=40, pool_maxsize=40)
-    sess.mount("https://", adapter); sess.mount("http://", adapter)
-    sess.headers.update({
-        "Ocp-Apim-Subscription-Key": os.getenv("SB_API_KEY", ""),
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) Chrome/123 Safari/537.36",
-        "Accept": "application/json",
+API_BASE = "https://apis.sb.gob.do/estadisticas/v2/carteras/creditos"
+MONTHLY_DIR = "monthly"  # subcarpeta opcional para CSV por mes
+
+
+def _requests_session(api_key: str, timeout: int = 15) -> requests.Session:
+    s = requests.Session()
+    s.headers.update({
+        "Ocp-Apim-Subscription-Key": api_key,
+        "User-Agent": "simbad-harvester/1.0 (+cloud-run)"
     })
-    sess._rnd_jitter = jitter
-    return sess
+    retry = Retry(
+        total=8, connect=5, read=5,
+        backoff_factor=0.8,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"]
+    )
+    s.mount("https://", HTTPAdapter(max_retries=retry))
+    s.mount("http://", HTTPAdapter(max_retries=retry))
+    s.request_timeout = timeout
+    return s
 
-def fetch_month(sess: requests.Session, tipo_entidad: str, periodo: str, registros_pag: int = 10000, attempts: int = 3) -> pd.DataFrame:
-    url = BASE + ENDPT
-    for attempt in range(1, attempts+1):
-        frames, pagina = [], 1
-        while True:
-            params: Dict[str, Any] = {
-                "periodoInicial": periodo,
-                "periodoFinal":   periodo,
-                "tipoEntidad":    [tipo_entidad],
-                "paginas":        pagina,
-                "registros":      registros_pag,
-            }
-            try:
-                r = sess.get(url, params=_expand_params(params), timeout=(30, 180))
-            except requests.exceptions.RequestException:
-                time.sleep((2**attempt) + random.random()*sess._rnd_jitter)
-                frames=[]; break
 
-            if r.status_code in (429, 500, 502, 503, 504):
-                ra = r.headers.get("Retry-After")
-                try:
-                    wait = float(ra) if ra and ra.strip().isdigit() else 5.0
-                except Exception:
-                    wait = 5.0
-                time.sleep(wait + random.random()*sess._rnd_jitter)
-                continue
+def _month_iter(start_year: int) -> List[Tuple[int, int]]:
+    """Devuelve [(YYYY, MM), ...] desde start_year-01 hasta el mes actual."""
+    today = dt.date.today()
+    months = []
+    y, m = start_year, 1
+    while (y < today.year) or (y == today.year and m <= today.month):
+        months.append((y, m))
+        if m == 12:
+            y += 1
+            m = 1
+        else:
+            m += 1
+    return months
 
-            if r.status_code == 204:
-                break
-            if r.status_code == 400:
-                return pd.DataFrame()
 
-            try:
-                r.raise_for_status()
-                data = r.json()
-            except Exception:
-                frames=[]; break
+def _fetch_month_df(sess: requests.Session, y: int, m: int, tipo_entidad: str) -> pd.DataFrame:
+    """Descarga un mes, pagina y devuelve DataFrame bruto (sin filtrar)."""
+    periodo = f"{y:04d}-{m:02d}"
+    params = {
+        "periodoInicial": periodo,
+        "periodoFinal": periodo,
+        "tipoEntidad": tipo_entidad,
+        "paginas": 1,
+        "registros": 10000,
+    }
+    dfs = []
+    page = 1
 
-            if not isinstance(data, list) or not data:
-                break
+    while True:
+        params["paginas"] = page
+        r = sess.get(API_BASE, params=params, timeout=getattr(sess, "request_timeout", 15))
+        r.raise_for_status()
 
-            frames.append(pd.DataFrame(data))
+        # Chequear si hay contenido
+        if r.status_code == 204 or not r.text.strip():
+            break
 
-            xpag = r.headers.get("x-pagination")
-            if not xpag:
-                break
-            try:
-                if not json.loads(xpag).get("HasNext", False):
-                    break
-            except Exception:
-                break
+        # Parse JSON
+        try:
+            payload = r.json()
+        except Exception:
+            # Si devuelve HTML por mantenimiento u otro, paramos este mes
+            log.warning("Respuesta no JSON para %s: %s...", periodo, r.headers.get("content-type"))
+            break
 
-            pagina += 1
-            time.sleep(0.2 + random.random()*sess._rnd_jitter)
+        # Data
+        if isinstance(payload, list) and payload:
+            dfs.append(pd.DataFrame(payload))
+        elif isinstance(payload, dict) and payload.get("Data"):
+            # Por si algún endpoint devuelve {Data:[...]}
+            dfs.append(pd.DataFrame(payload["Data"]))
+        else:
+            # Puede que sea 200 sin body válido → salimos
+            break
 
-        if frames:
-            return pd.concat(frames, ignore_index=True)
+        # Paginación
+        xp = r.headers.get("x-pagination")
+        if not xp:
+            break
+        try:
+            meta = json.loads(xp)
+            has_next = meta.get("HasNext", False)
+        except Exception:
+            has_next = False
+
+        if not has_next:
+            break
+        page += 1
+        # pequeño respiro anti-rate-limit
+        time.sleep(0.2)
+
+    if dfs:
+        out = pd.concat(dfs, ignore_index=True)
+        out["__periodo"] = periodo  # guardamos el período
+        return out
     return pd.DataFrame()
 
-def _to_csv_bytes(df: pd.DataFrame) -> bytes:
-    buf = io.StringIO()
-    df.to_csv(buf, index=False, encoding="utf-8")
-    return buf.getvalue().encode("utf-8")
 
-def upload_csv_to_gcs(df: pd.DataFrame, bucket: str, path: str) -> None:
+def _filter_hipotecarios(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+    # Columna esperada "tipoCartera" en la API v2
+    if "tipoCartera" in df.columns:
+        df = df[df["tipoCartera"].astype(str).str.lower() == "créditos hipotecarios".lower()]
+    # Normaliza nombre de periodo
+    if "periodo" in df.columns:
+        # asegurar YYYY-MM
+        df["periodo"] = df["periodo"].astype(str)
+    else:
+        df["periodo"] = df["__periodo"]
+    return df
+
+
+def _upload_csv_to_gcs(df: pd.DataFrame, bucket: str, object_name: str) -> str:
     client = storage.Client()
-    blob = client.bucket(bucket).blob(path)
-    blob.upload_from_string(_to_csv_bytes(df), content_type="text/csv")
+    b = client.bucket(bucket)
+    blob = b.blob(object_name)
 
-def _shard_months(months: list[str]) -> list[str]:
-    try:
-        idx = int(os.getenv("CLOUD_RUN_TASK_INDEX", "0"))
-        cnt = max(int(os.getenv("CLOUD_RUN_TASK_COUNT", "1")), 1)
-        return [m for i, m in enumerate(months) if i % cnt == idx]
-    except Exception:
-        return months
+    # CSV en memoria (para no escribir disco)
+    buf = io.StringIO()
+    df.to_csv(buf, index=False)
+    blob.upload_from_string(buf.getvalue(), content_type="text/csv")
+    path = f"gs://{bucket}/{object_name}"
+    log.info("[WRITE] %s (%d filas)", path, len(df))
+    return path
 
-def run_harvest(cutoff_date: date | None = None) -> dict:
-    bucket   = os.environ["GCS_BUCKET"]
-    prefix   = os.getenv("LANDING_PREFIX", "landing").rstrip("/")
-    dataset  = os.getenv("SB_DATASET", "simbad_carteras_aayp_hipotecarios")
-    tipo_ent = os.getenv("SB_TIPO_ENTIDAD", "AAyP")
-    cartera  = os.getenv("SB_CARTERA_OBJ", "Créditos Hipotecarios")
-    start_y  = int(os.getenv("SB_START_YEAR", "2012"))
-    keep_m   = os.getenv("SB_KEEP_MONTHLY", "false").lower() == "true"
-    make_con = os.getenv("SB_MAKE_CONSOLIDATED", "false").lower() == "true"
 
-    if cutoff_date is None:
-        cutoff_date = date.today()
-    end_y, end_m = cutoff_date.year, cutoff_date.month
-    dt_str = cutoff_date.isoformat()
+def run_harvest(
+    api_key: str,
+    tipo_entidad: str,
+    start_year: int,
+    bucket: str,
+    prefix: str,
+    dataset: str,
+    keep_monthly: bool,
+    run_date: str,
+) -> dict:
+    """
+    Descarga 2012→mes actual, filtra 'Créditos Hipotecarios',
+    sube CSVs mensuales (si keep_monthly) y un consolidado final por dt=run_date.
+    """
+    if not all([api_key, bucket, prefix, dataset]):
+        raise ValueError("Faltan parámetros requeridos (api_key, bucket, prefix, dataset)")
 
-    assert os.getenv("SB_API_KEY"), "SB_API_KEY no configurado"
-    assert bucket, "GCS_BUCKET no configurado"
+    sess = _requests_session(api_key)
+    months = _month_iter(start_year)
+    saved_paths = []
+    all_pieces = []
 
-    sess = new_session_with_retries()
-    months_all = list(month_iter(start_y, 1, end_y, end_m))
-    months = _shard_months(months_all)
-    logging.info("Procesando %s de %s meses (task_index=%s)", len(months), len(months_all), os.getenv("CLOUD_RUN_TASK_INDEX","0"))
+    log.info("=== SIMBAD harvest: tipoEntidad=%s, desde=%d, keep_monthly=%s ===",
+             tipo_entidad, start_year, keep_monthly)
 
-    consolidated = []
-    written = 0
-    for periodo in months:
-        df = fetch_month(sess, tipo_ent, periodo)
-        if df.empty:
-            empty = pd.DataFrame()
-            monthly_key = f"{prefix}/{dataset}/monthly/{periodo}/carteras_{tipo_ent}_hipotecarios_{periodo}.csv"
-            upload_csv_to_gcs(empty, bucket, monthly_key)
-            logging.info("%s: 0 filas (CSV vacío) -> gs://%s/%s", periodo, bucket, monthly_key)
+    for (y, m) in months:
+        periodo = f"{y:04d}-{m:02d}"
+        log.info("⏬ Descargando %s…", periodo)
+        try:
+            raw_df = _fetch_month_df(sess, y, m, tipo_entidad)
+        except requests.HTTPError as e:
+            log.warning("HTTP %s en %s: %s", e.response.status_code if e.response else "ERR", periodo, str(e))
+            continue
+        except Exception as e:
+            log.warning("Error en %s: %s", periodo, str(e))
             continue
 
-        if "tipoCartera" in df.columns:
-            before = len(df)
-            df = df[df["tipoCartera"] == cartera]
-            logging.info("%s: %s -> %s filas tras filtro '%s'", periodo, before, len(df), cartera)
+        if raw_df.empty:
+            log.info("Sin datos en %s", periodo)
+            continue
 
-        monthly_key = f"{prefix}/{dataset}/monthly/{periodo}/carteras_{tipo_ent}_hipotecarios_{periodo}.csv"
-        upload_csv_to_gcs(df, bucket, monthly_key)
-        logging.info("Guardado mensual -> gs://%s/%s", bucket, monthly_key)
-        written += len(df)
+        df = _filter_hipotecarios(raw_df)
+        if df.empty:
+            log.info("Sin filas de 'Créditos Hipotecarios' en %s", periodo)
+            continue
 
-        if make_con:
-            consolidated.append(df)
+        all_pieces.append(df)
 
-    out = {
-        "processed_months": len(months),
-        "rows_written": written,
-        "dataset": dataset,
-        "bucket": bucket,
-        "prefix": prefix,
-        "cutoff_date": dt_str,
-        "consolidated": False,
+        if keep_monthly:
+            obj = f"{prefix}/{dataset}/{MONTHLY_DIR}/periodo={periodo}/carteras_{tipo_entidad}_hipotecarios_{periodo}.csv"
+            saved_paths.append(_upload_csv_to_gcs(df, bucket, obj))
+
+        # respiro ligero para no golpear API
+        time.sleep(0.1)
+
+    if not all_pieces:
+        return {"saved": saved_paths, "consolidated": None, "rows": 0}
+
+    full = pd.concat(all_pieces, ignore_index=True)
+
+    # Orden y columnas recomendadas
+    preferred = [
+        "periodo","tipoCredito","tipoEntidad","entidad","sectorEconomico","region","provincia",
+        "moneda","tipoCartera","actividad","sector","persona","facilidad","residencia",
+        "administracionYPropiedad","genero","tipoCliente","clasificacionEntidad",
+        "cantidadPlasticos","cantidadCredito","deuda","tasaPorDeuda","deudaCapital",
+        "deudaVencida","deudaVencidaDe31A90Dias","valorDesembolso","valorGarantia",
+        "valorProvisionCapitalYRendimiento"
+    ]
+    cols = [c for c in preferred if c in full.columns] + [c for c in full.columns if c not in preferred]
+    full = full[cols]
+
+    timestamp = dt.datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    consolidated_obj = (
+        f"{prefix}/{dataset}/dt={run_date}/"
+        f"consolidado_{tipo_entidad}_hipotecarios_{months[0][0]}_{months[-1][0]}_{timestamp}.csv"
+    )
+    consolidated_path = _upload_csv_to_gcs(full, bucket, consolidated_obj)
+
+    return {
+        "saved": saved_paths,
+        "consolidated": consolidated_path,
+        "rows": len(full),
+        "from": f"{months[0][0]}-{months[0][1]:02d}",
+        "to": f"{months[-1][0]}-{months[-1][1]:02d}",
     }
-
-    if make_con and consolidated:
-        df_full = pd.concat(consolidated, ignore_index=True)
-        start_str = f"{start_y}-01"
-        end_str   = f"{end_y}-{end_m:02d}"
-        full_key  = f"{prefix}/{dataset}/dt={dt_str}/{dataset}_{start_str}_a_{end_str}_full.csv"
-        upload_csv_to_gcs(df_full, bucket, full_key)
-        logging.info("Consolidado (%s filas) -> gs://%s/%s", len(df_full), bucket, full_key)
-        out["consolidated"] = True
-        out["consolidated_rows"] = int(len(df_full))
-        out["consolidated_path"] = f"gs://{bucket}/{full_key}"
-
-    if not keep_m:
-        logging.info("SB_KEEP_MONTHLY=false -> mensual guardado (borrado omitido por seguridad)")
-
-    return out
