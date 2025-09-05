@@ -1,0 +1,60 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _SERVICE: "simbad-harvester"
+  _REGION: "us-west2"
+  _BUCKET: "dae-integrador-2025"
+  _LANDING_PREFIX: "lakehouse/landing/simbad"
+  _SB_API_KEY: "dff2111ccbcd44c2ac47265b658949f3"   # usa Secret Manager si prefieres
+  _SB_TIPO_ENTIDAD: "AAyP"
+  _SB_START_YEAR: "2012"
+  _SB_DATASET: "simbad_carteras_aayp_hipotecarios"
+  _SB_KEEP_MONTHLY: "false"
+
+steps:
+  # 1) Build
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: 'landing_simbad'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/simbad-harvester:$SHORT_SHA'
+      - '.'
+
+  # 2) Push
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/simbad-harvester:$SHORT_SHA'
+
+  # 3) Deploy
+  - name: 'gcr.io/cloud-builders/gcloud'
+    dir: 'landing_simbad'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE}'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/simbad-harvester:$SHORT_SHA'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--set-env-vars'
+      - >-
+        GCS_BUCKET=${_BUCKET},
+        LANDING_PREFIX=${_LANDING_PREFIX},
+        SB_API_KEY=${_SB_API_KEY},
+        SB_TIPO_ENTIDAD=${_SB_TIPO_ENTIDAD},
+        SB_START_YEAR=${_SB_START_YEAR},
+        SB_DATASET=${_SB_DATASET},
+        SB_KEEP_MONTHLY=${_SB_KEEP_MONTHLY}
+      - '--timeout=3600s'
+      - '--concurrency=4'
+      - '--cpu=1'
+      - '--memory=1Gi'
+      - '--allow-unauthenticated'
+
+images:
+  - 'gcr.io/$PROJECT_ID/simbad-harvester:$SHORT_SHA'

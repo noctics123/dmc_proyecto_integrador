@@ -14,8 +14,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ========= CONFIG =========
-BUCKET = os.getenv("GCS_BUCKET", "dmc_proy_storage")
-BASE_PREFIX = os.getenv("LANDING_PREFIX", "landing/macroeconomics")
+BUCKET = os.getenv("GCS_BUCKET")
+BASE_PREFIX = os.getenv("LANDING_PREFIX")
+
+# Validar que las variables estén definidas
+if not BUCKET:
+    raise ValueError("GCS_BUCKET environment variable is required")
+if not BASE_PREFIX:
+    raise ValueError("LANDING_PREFIX environment variable is required")
 QUERY_URL = "https://wabi-us-east2-api.analysis.windows.net/public/reports/querydata?synchronous=true"
 HEADERS = {
     "Content-Type": "application/json;charset=UTF-8",
