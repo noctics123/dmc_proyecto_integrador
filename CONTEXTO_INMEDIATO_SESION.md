@@ -1,11 +1,33 @@
 # 🚀 DMC PROYECTO INTEGRADOR - CONTEXTO INMEDIATO 
 *Archivo de contexto para continuar en próximas sesiones de Claude Code*
 
-## 📅 ESTADO ACTUAL - SEPTIEMBRE 2025
+## 📅 ESTADO ACTUAL - SEPTIEMBRE 2025 (ACTUALIZADO - SESIÓN ACTUAL)
+
+### 🚨 **PROBLEMA RESUELTO - FRONTEND NO SERVÍA**
+
+**PROBLEMA IDENTIFICADO**: El backend FastAPI no estaba configurado para servir los archivos estáticos del frontend React.
+- ❌ Solo funcionaba como API: `{"message":"DMC Data Pipeline Management API","status":"running","debug":"static/index.html not found"}`
+- ❌ El frontend se compilaba en Cloud Build pero no se incluía en el contenedor final
+
+**SOLUCIÓN IMPLEMENTADA**: Integración completa frontend + backend en una sola imagen Docker
 
 ### ✅ TRABAJO COMPLETADO EN ESTA SESIÓN
 
-#### 1. **WEB APP - OPTIMIZACIONES IMPLEMENTADAS**
+#### 1. **🔧 CORRECCIÓN CRÍTICA - FRONTEND INTEGRATION**
+- **main.py actualizado**: ✅ Agregado `StaticFiles`, `FileResponse` para servir React app
+- **Dockerfile modificado**: ✅ Incluye frontend compilado en `/static` directory
+- **cloudbuild.yaml actualizado**: ✅ Copia `frontend/build/*` a `backend/frontend-build/`
+- **SPA Routing**: ✅ Implementado catch-all route para React Router
+
+#### 2. **ARCHIVOS MODIFICADOS EN ESTA SESIÓN**
+```
+✅ /web_app/backend/main.py - FRONTEND SERVING AGREGADO
+✅ /web_app/backend/Dockerfile - FRONTEND INTEGRATION 
+✅ /web_app/cloudbuild.webapp.yaml - BUILD PROCESS MEJORADO
+✅ /CONTEXTO_INMEDIATO_SESION.md - ESTADO ACTUALIZADO
+```
+
+#### 3. **WEB APP - OPTIMIZACIONES PREVIAS (YA IMPLEMENTADAS)**
 - **Deployments Page**: ✅ Implementada con agrupación por capas (Landing→Bronze→Silver→Gold)
 - **Monitoring Page**: ✅ Implementada con logs, historial y problemas actuales
 - **Progreso Dinámico**: ✅ Corregido - ya no está hardcodeado
@@ -76,12 +98,29 @@ GET /api/jobs/{jobId}/progress - Progreso dinámico
 GET /api/monitoring/* - Métricas y monitoreo
 ```
 
-## 🎯 **PRÓXIMOS PASOS SUGERIDOS**
+## 🎯 **PRÓXIMOS PASOS CRÍTICOS - PARA PRÓXIMA SESIÓN**
 
-### **INMEDIATO**:
-1. **Obtener URL real de la web app**: Ejecutar comandos gcloud
-2. **Validar funcionalidades**: Probar páginas Deployments y Monitoring
-3. **Verificar progreso dinámico**: Confirmar que ya no está hardcodeado
+### **⚠️ INMEDIATO - TAREAS PENDIENTES**:
+1. **🚀 DESPLEGAR CAMBIOS**: Los cambios están implementados pero NO desplegados
+   - Problema: Cloud Build falla en último paso (gcloud deploy)
+   - Solución temporal: Probar URL actual vs nueva imagen
+
+2. **🧪 VALIDAR FRONTEND SERVIDO**: 
+   - URL actual: `https://dmc-pipeline-management-e6m2visuhq-uc.a.run.app`
+   - Verificar si ahora sirve React app en lugar de solo JSON API
+
+3. **🔄 REDEPLOYE SI ES NECESARIO**:
+   - Si la URL actual sigue mostrando error, reintentar Cloud Build
+   - O desplegar manualmente con `gcloud run deploy`
+
+### **🔧 SOLUCIÓN TÉCNICA IMPLEMENTADA**:
+```yaml
+# PROCESO DE BUILD ACTUALIZADO:
+1. Build Frontend (npm run build) → frontend/build/
+2. Copy Frontend → backend/frontend-build/  
+3. Docker Build → Incluye frontend en /static
+4. FastAPI serve → React app en todas las rutas (SPA)
+```
 
 ### **MEJORAS FUTURAS**:
 1. **Conectar APIs reales de GCP**: Cloud Build API, DataProc API  

@@ -10,12 +10,29 @@ steps:
         npm run build
         echo "Frontend build completed"
 
-  # Build backend Docker image
+  # Copy frontend build to backend directory
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Copying frontend build to backend directory..."
+        mkdir -p web_app/backend/frontend-build
+        if [ -d "web_app/frontend/build" ]; then
+          cp -r web_app/frontend/build/* web_app/backend/frontend-build/
+          echo "Frontend files copied successfully"
+          ls -la web_app/backend/frontend-build/
+        else
+          echo "ERROR: Frontend build directory not found"
+          exit 1
+        fi
+
+  # Build backend Docker image (now includes frontend)
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
       - '-t'
-      - 'gcr.io/$PROJECT_ID/dmc-pipeline-management:$SHORT_SHA'
+      - 'gcr.io/$PROJECT_ID/dmc-pipeline-management:latest'
       - '-f'
       - 'web_app/backend/Dockerfile'
       - 'web_app/backend'
@@ -24,7 +41,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'gcr.io/$PROJECT_ID/dmc-pipeline-management:$SHORT_SHA'
+      - 'gcr.io/$PROJECT_ID/dmc-pipeline-management:latest'
 
   # Deploy backend to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -33,7 +50,7 @@ steps:
       - 'deploy'
       - 'dmc-pipeline-management'
       - '--image'
-      - 'gcr.io/$PROJECT_ID/dmc-pipeline-management:$SHORT_SHA'
+      - 'gcr.io/$PROJECT_ID/dmc-pipeline-management:latest'
       - '--region'
       - 'us-central1'
       - '--platform'

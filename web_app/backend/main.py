@@ -3,11 +3,14 @@ FastAPI Backend for DMC Data Pipeline Management
 Main application entry point
 """
 
-from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 import os
 from typing import Dict, List, Optional
+from pathlib import Path
 
 from .gcp_integration.pipeline_manager import PipelineManager
 from .gcp_integration.monitoring import MonitoringService
@@ -47,10 +50,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files
+static_path = Path(__file__).parent / "static"
+if static_path.exists():
+    app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
+
 @app.get("/")
 async def root():
-    """Root endpoint"""
-    return {"message": "DMC Data Pipeline Management API", "status": "running"}
+    """Root endpoint - serve React app or API info"""
+    static_index = Path(__file__).parent / "static" / "index.html"
+    if static_index.exists():
+        return FileResponse(str(static_index))
+    else:
+        return {
+            "message": "DMC Data Pipeline Management API", 
+            "status": "running",
+            "debug": "static/index.html not found"
+        }
 
 @app.get("/health")
 async def health_check():
@@ -169,6 +185,22 @@ async def get_dataproc_status():
         return await pipeline_manager.get_dataproc_status()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# Catch-all route for React Router (SPA routing) - MUST be last
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+    """Serve React app for any non-API route"""
+    # For all non-API routes, serve the React app
+    static_index = Path(__file__).parent / "static" / "index.html"
+    if static_index.exists():
+        return FileResponse(str(static_index))
+    else:
+        return {
+            "message": "DMC Data Pipeline Management API", 
+            "status": "running",
+            "debug": "static/index.html not found",
+            "path": full_path
+        }
 
 if __name__ == "__main__":
     import uvicorn
