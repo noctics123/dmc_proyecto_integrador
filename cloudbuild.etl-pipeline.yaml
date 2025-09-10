@@ -1,0 +1,303 @@
+# Cloud Build configuration for complete ETL pipeline
+# Integrates bronze, silver, and gold jobs in sequence
+
+steps:
+  # Step 1: Upload ETL jobs to GCS
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Uploading ETL jobs to GCS..."
+        gsutil -m cp -r etl_spark/ gs://dae-integrador-2025/jobs/
+        gsutil -m cp -r sql/ gs://dae-integrador-2025/sql/
+        echo "Jobs uploaded successfully"
+
+  # Step 2: Create/Update BigQuery external tables (Bronze)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bq'
+    args:
+      - 'query'
+      - '--use_legacy_sql=false'
+      - '--project_id=proyecto-integrador-dae-2025'
+      - '--format=none'
+      - |
+        -- Create bronze external tables
+        CREATE OR REPLACE EXTERNAL TABLE `proyecto-integrador-dae-2025.bronze.bronze_desempleo_imf_ext`
+        OPTIONS (
+          format = 'PARQUET',
+          uris   = ['gs://dae-integrador-2025/lakehouse/bronze/macroeconomics/bronze_desempleo_imf_data/*']
+        );
+
+        CREATE OR REPLACE EXTERNAL TABLE `proyecto-integrador-dae-2025.bronze.bronze_inflacion_12m_ext`
+        OPTIONS (
+          format = 'PARQUET',
+          uris   = ['gs://dae-integrador-2025/lakehouse/bronze/macroeconomics/bronze_inflacion_12m_data/*']
+        );
+
+        CREATE OR REPLACE EXTERNAL TABLE `proyecto-integrador-dae-2025.bronze.bronze_tipo_cambio_ext`
+        OPTIONS (
+          format = 'PARQUET',
+          uris   = ['gs://dae-integrador-2025/lakehouse/bronze/macroeconomics/bronze_tipo_cambio_data/*']
+        );
+
+        CREATE OR REPLACE EXTERNAL TABLE `proyecto-integrador-dae-2025.bronze.simbad_bronze_parquet_ext`
+        OPTIONS (
+          format = 'PARQUET',
+          uris   = ['gs://dae-integrador-2025/lakehouse/bronze/simbad/simbad_carteras_aayp_hipotecarios/*']
+        );
+
+  # Step 3: Check if DataProc cluster is running, start if needed
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        CLUSTER_STATE=$(gcloud dataproc clusters describe cluster-integrador-2025 \
+          --region=us-central1 \
+          --format="value(status.state)" 2>/dev/null || echo "NOT_FOUND")
+        
+        if [ "$CLUSTER_STATE" = "STOPPED" ]; then
+          echo "Starting DataProc cluster..."
+          gcloud dataproc clusters start cluster-integrador-2025 --region=us-central1
+          echo "Waiting for cluster to be ready..."
+          sleep 120
+        elif [ "$CLUSTER_STATE" = "RUNNING" ]; then
+          echo "DataProc cluster already running"
+        else
+          echo "Creating DataProc cluster..."
+          gcloud dataproc clusters create cluster-integrador-2025 \
+            --region=us-central1 \
+            --zone=us-central1-a \
+            --master-machine-type=n2-standard-2 \
+            --master-boot-disk-size=30GB \
+            --num-workers=4 \
+            --worker-machine-type=n2-standard-2 \
+            --worker-boot-disk-size=30GB \
+            --image-version=2.2-debian12 \
+            --optional-components=JUPYTER,ZEPPELIN,TRINO,DELTA \
+            --enable-http-port-access
+        fi
+
+  # Step 4: Run Bronze ETL job (SIMBAD)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'dataproc'
+      - 'jobs'
+      - 'submit'
+      - 'pyspark'
+      - 'gs://dae-integrador-2025/jobs/etl_spark/bronze/land_simbad_bronze.py'
+      - '--cluster=cluster-integrador-2025'
+      - '--region=us-central1'
+      - '--max-wait-time=1800'  # 30 minutes timeout
+
+  # Step 5: Run Silver ETL job (BigQuery MERGE)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bq'
+    args:
+      - 'query'
+      - '--use_legacy_sql=false'
+      - '--project_id=proyecto-integrador-dae-2025'
+      - '--format=none'
+      - '--max_rows=0'
+      - |
+        -- Silver SIMBAD incremental MERGE
+        MERGE `proyecto-integrador-dae-2025.silver_clean.simbad_hipotecarios` T
+        USING (
+          WITH tgt AS (
+            SELECT IFNULL(MAX(periodo_ym), 0) AS max_ym
+            FROM `proyecto-integrador-dae-2025.silver_clean.simbad_hipotecarios`
+          ),
+          src_raw AS (
+            SELECT
+              REGEXP_REPLACE(TRIM(periodo), r'\s+', ' ') AS periodo,
+              REGEXP_REPLACE(TRIM(tipoCliente), r'\s+', ' ') AS tipoCliente,
+              REGEXP_REPLACE(TRIM(actividad), r'\s+', ' ') AS actividad,
+              REGEXP_REPLACE(TRIM(entidad), r'\s+', ' ') AS entidad,
+              REGEXP_REPLACE(TRIM(sector), r'\s+', ' ') AS sector,
+              REGEXP_REPLACE(TRIM(moneda), r'\s+', ' ') AS moneda,
+              REGEXP_REPLACE(TRIM(provincia), r'\s+', ' ') AS provincia,
+              REGEXP_REPLACE(TRIM(residencia), r'\s+', ' ') AS residencia,
+              REGEXP_REPLACE(TRIM(genero), r'\s+', ' ') AS genero,
+              REGEXP_REPLACE(TRIM(persona), r'\s+', ' ') AS persona,
+              SAFE_CAST(deudaCapital AS FLOAT64) AS deudaCapital,
+              SAFE_CAST(deudaVencida AS FLOAT64) AS deudaVencida,
+              SAFE_CAST(deudaVencidaDe31A90Dias AS FLOAT64) AS deudaVencidaDe31A90Dias,
+              SAFE_CAST(cantidadCredito AS INT64) AS cantidadCredito,
+              SAFE_CAST(valorDesembolso AS FLOAT64) AS valorDesembolso,
+              SAFE_CAST(valorGarantia AS FLOAT64) AS valorGarantia,
+              SAFE_CAST(valorProvisionCapitalYRendimiento AS FLOAT64) AS valorProvisionCapitalYRendimiento,
+              SAFE_CAST(deuda AS FLOAT64) AS deuda,
+              COALESCE(periodo_date, SAFE.PARSE_DATE('%Y-%m', TRIM(periodo))) AS periodo_date,
+              EXTRACT(YEAR FROM COALESCE(periodo_date, SAFE.PARSE_DATE('%Y-%m', TRIM(periodo)))) AS anio,
+              EXTRACT(MONTH FROM COALESCE(periodo_date, SAFE.PARSE_DATE('%Y-%m', TRIM(periodo)))) AS mes,
+              CAST(FORMAT_DATE('%Y%m', COALESCE(periodo_date, SAFE.PARSE_DATE('%Y-%m', TRIM(periodo)))) AS INT64) AS periodo_ym,
+              SAFE.PARSE_DATE('%Y-%m-%d', dt_captura) AS dt_captura,
+              archivo_origen
+            FROM `proyecto-integrador-dae-2025.bronze.simbad_bronze_parquet_ext`
+          ),
+          src AS (
+            SELECT * EXCEPT(rn)
+            FROM (
+              SELECT src_raw.*,
+                     ROW_NUMBER() OVER (
+                       PARTITION BY periodo, entidad, provincia, moneda, tipoCliente, actividad, sector, residencia
+                       ORDER BY dt_captura DESC, archivo_origen DESC
+                     ) AS rn
+              FROM src_raw
+            )
+            WHERE rn = 1
+          )
+          SELECT s.*
+          FROM src s
+          CROSS JOIN tgt
+          WHERE s.periodo_ym >= tgt.max_ym
+        ) S
+        ON (
+          T.periodo = S.periodo
+          AND T.entidad = S.entidad
+          AND T.provincia = S.provincia
+          AND T.moneda = S.moneda
+          AND T.tipoCliente = S.tipoCliente
+          AND T.actividad = S.actividad
+          AND T.sector = S.sector
+          AND T.residencia = S.residencia
+        )
+        WHEN MATCHED THEN UPDATE SET
+          deudaCapital = S.deudaCapital,
+          deudaVencida = S.deudaVencida,
+          deudaVencidaDe31A90Dias = S.deudaVencidaDe31A90Dias,
+          cantidadCredito = S.cantidadCredito,
+          valorDesembolso = S.valorDesembolso,
+          valorGarantia = S.valorGarantia,
+          valorProvisionCapitalYRendimiento = S.valorProvisionCapitalYRendimiento,
+          deuda = S.deuda,
+          periodo_date = S.periodo_date,
+          anio = S.anio,
+          mes = S.mes,
+          periodo_ym = S.periodo_ym,
+          dt_captura = S.dt_captura,
+          genero = S.genero,
+          persona = S.persona
+        WHEN NOT MATCHED THEN
+          INSERT (
+            periodo, tipoCliente, actividad, entidad, sector, moneda, provincia, residencia,
+            deudaCapital, deudaVencida, deudaVencidaDe31A90Dias, cantidadCredito,
+            valorDesembolso, valorGarantia, valorProvisionCapitalYRendimiento, deuda,
+            periodo_date, anio, mes, periodo_ym, dt_captura, genero, persona
+          )
+          VALUES (
+            S.periodo, S.tipoCliente, S.actividad, S.entidad, S.sector, S.moneda, S.provincia, S.residencia,
+            S.deudaCapital, S.deudaVencida, S.deudaVencidaDe31A90Dias, S.cantidadCredito,
+            S.valorDesembolso, S.valorGarantia, S.valorProvisionCapitalYRendimiento, S.deuda,
+            S.periodo_date, S.anio, S.mes, S.periodo_ym, S.dt_captura, S.genero, S.persona
+          );
+
+  # Step 6: Create/Update Gold table
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bq'
+    args:
+      - 'query'
+      - '--use_legacy_sql=false'
+      - '--project_id=proyecto-integrador-dae-2025'
+      - '--format=none'
+      - '--destination_table=proyecto-integrador-dae-2025:gold.simbad_gold'
+      - '--replace'
+      - '--clustering_fields=PROVINCIA'
+      - '--time_partitioning_field=periodo_date'
+      - '--time_partitioning_type=MONTH'
+      - |
+        -- Gold Indicators Table Creation
+        WITH
+        simbad AS (
+          SELECT
+            anio, mes, provincia, tipoCliente, actividad,
+            deudaCapital, deudaVencida, deudaVencidaDe31A90Dias, cantidadCredito,
+            valorDesembolso, valorGarantia, valorProvisionCapitalYRendimiento, deuda,
+            genero, persona, moneda, sector, entidad, residencia
+          FROM `proyecto-integrador-dae-2025.silver_clean.simbad_hipotecarios`
+          WHERE tipoCliente = 'Asalariado Privado'
+        ),
+        agg AS (
+          SELECT
+            anio AS ANIO, mes AS MES, provincia AS PROVINCIA,
+            tipoCliente AS TIPOCLIENTE, actividad AS ACTIVIDAD,
+            SUM(deudaCapital) AS DEUDACAPITAL,
+            SUM(deudaVencida) AS DEUDAVENCIDA,
+            SUM(deudaVencidaDe31A90Dias) AS DEUDAVENCIDADE31A90DIAS,
+            SUM(cantidadCredito) AS CANTIDADCREDITO,
+            AVG(CASE WHEN genero IN ('Género femenino','Genero femenino') THEN 1 ELSE 0 END) AS GENERO,
+            AVG(CASE WHEN persona IN ('Persona jurídica','Persona juridica') THEN 1 ELSE 0 END) AS PERSONA,
+            AVG(CASE WHEN moneda IN ('Moneda Extranjera','MONEDA EXTRANJERA') THEN 1 ELSE 0 END) AS MONEDA,
+            AVG(CASE WHEN sector IN ('b) Privado','B) Privado','B) PRIVADO') THEN 1 ELSE 0 END) AS SECTOR,
+            AVG(CASE WHEN entidad = 'APAP' THEN 1 ELSE 0 END) AS ENTIDAD,
+            AVG(CASE WHEN residencia IN ('a) Residente','A) Residente') THEN 1 ELSE 0 END) AS RESIDENCIA,
+            SUM(valorGarantia) AS VALORGARANTIA,
+            SUM(valorProvisionCapitalYRendimiento) AS VALORPROVISIONCAPITALYRENDIMIENTO,
+            SUM(valorDesembolso) AS VALORDESEMBOLSO,
+            SUM(deuda) AS DEUDA
+          FROM simbad
+          GROUP BY ANIO, MES, PROVINCIA, TIPOCLIENTE, ACTIVIDAD
+        ),
+        agg2 AS (
+          SELECT
+            ANIO, MES, PROVINCIA, TIPOCLIENTE, ACTIVIDAD,
+            DEUDACAPITAL, DEUDAVENCIDA, DEUDAVENCIDADE31A90DIAS, CANTIDADCREDITO,
+            GENERO, PERSONA, MONEDA, SECTOR, ENTIDAD, RESIDENCIA,
+            VALORGARANTIA, VALORPROVISIONCAPITALYRENDIMIENTO, VALORDESEMBOLSO, DEUDA,
+            SAFE_DIVIDE(DEUDAVENCIDADE31A90DIAS, DEUDACAPITAL) AS TASA_MORA,
+            SAFE_DIVIDE(VALORGARANTIA, DEUDACAPITAL) AS COBERTURA_GARANTIA,
+            SAFE_DIVIDE(VALORPROVISIONCAPITALYRENDIMIENTO, DEUDA) AS PROPORCION_PROVISIONADA,
+            CASE WHEN DEUDAVENCIDA > 0 AND SAFE_DIVIDE(DEUDAVENCIDADE31A90DIAS, DEUDACAPITAL) >= 0.005 
+                 THEN 1 ELSE 0 END AS PD_AGREGADA
+          FROM agg
+        ),
+        inflacion AS (
+          SELECT
+            EXTRACT(YEAR FROM SAFE.PARSE_DATE('%Y-%m', FECHA)) AS ANIO,
+            EXTRACT(MONTH FROM SAFE.PARSE_DATE('%Y-%m', FECHA)) AS MES,
+            SAFE_CAST(REPLACE(INFLACION, ',', '.') AS FLOAT64) AS INFLACION
+          FROM `proyecto-integrador-dae-2025.bronze.bronze_inflacion_12m_ext`
+        ),
+        tipo_cambio AS (
+          SELECT
+            EXTRACT(YEAR FROM SAFE.PARSE_DATE('%Y-%m-%d', FECHA)) AS ANIO,
+            EXTRACT(MONTH FROM SAFE.PARSE_DATE('%Y-%m-%d', FECHA)) AS MES,
+            AVG(SAFE_CAST(REPLACE(TC_VENTA, ',', '.') AS FLOAT64)) AS TC_VENTA,
+            AVG(SAFE_CAST(REPLACE(TC_COMPRA, ',', '.') AS FLOAT64)) AS TC_COMPRA
+          FROM `proyecto-integrador-dae-2025.bronze.bronze_tipo_cambio_ext`
+          GROUP BY ANIO, MES
+        )
+        SELECT
+          DATE(ANIO, MES, 1) AS periodo_date,
+          ANIO, MES, PROVINCIA, DEUDACAPITAL, DEUDAVENCIDA, DEUDAVENCIDADE31A90DIAS,
+          CANTIDADCREDITO, GENERO, PERSONA, MONEDA, SECTOR, ENTIDAD, RESIDENCIA,
+          VALORGARANTIA, VALORPROVISIONCAPITALYRENDIMIENTO, VALORDESEMBOLSO, DEUDA,
+          TASA_MORA, COBERTURA_GARANTIA, PROPORCION_PROVISIONADA, PD_AGREGADA,
+          i.INFLACION, t.TC_VENTA, t.TC_COMPRA
+        FROM agg2 a
+        LEFT JOIN inflacion i USING (ANIO, MES)
+        LEFT JOIN tipo_cambio t USING (ANIO, MES);
+
+  # Step 7: Stop DataProc cluster to save costs (optional)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [ "${_STOP_CLUSTER}" = "true" ]; then
+          echo "Stopping DataProc cluster to save costs..."
+          gcloud dataproc clusters stop cluster-integrador-2025 --region=us-central1
+        else
+          echo "Keeping DataProc cluster running (set _STOP_CLUSTER=true to auto-stop)"
+        fi
+
+substitutions:
+  _STOP_CLUSTER: 'false'  # Set to 'true' to automatically stop cluster after job
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
+  
+timeout: '3600s'  # 1 hour timeout

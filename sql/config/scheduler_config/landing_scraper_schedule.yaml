@@ -1,0 +1,71 @@
+# Cloud Scheduler Configuration for Landing Scrapers
+# Based on configuration from scheduler screenshots
+
+landing_scraper_trigger:
+  name: "landing_scraper_trigger"
+  description: "Monthly trigger for landing data scrapers"
+  region: "us-west2"
+  schedule:
+    frequency: "0 0 20 * *"  # At 12:00 AM on day 20 of every month
+    timezone: "Peru Standard Time (PET)"
+    description: "Runs at 12:00 AM on the 20th day of each month"
+  
+  # Targets configuration
+  targets:
+    - name: "macroeconomics_scraper"
+      type: "cloud_run_job"
+      service: "landing-macroeconomics"
+      region: "us-west2"
+      
+    - name: "simbad_scraper" 
+      type: "cloud_run_job"
+      service: "landing-simbad"
+      region: "us-west2"
+
+# ETL Pipeline Schedule (runs after landing completion)
+etl_pipeline_trigger:
+  name: "etl_pipeline_trigger"
+  description: "Monthly ETL pipeline execution"
+  region: "us-west2"
+  schedule:
+    frequency: "0 2 20 * *"  # At 2:00 AM on day 20 of every month (2h after scrapers)
+    timezone: "Peru Standard Time (PET)"
+    description: "ETL pipeline starts 2 hours after scrapers complete"
+  
+  targets:
+    - name: "bronze_etl"
+      type: "dataproc_job"
+      cluster: "cluster-integrador-2025"
+      job_type: "pyspark"
+      main_python_file: "gs://dae-integrador-2025/jobs/etl_spark/bronze/land_simbad_bronze.py"
+      args: ["proyecto-integrador-dae-2025", "dae-integrador-2025"]
+      
+    - name: "silver_etl"
+      type: "dataproc_job" 
+      cluster: "cluster-integrador-2025"
+      job_type: "pyspark"
+      main_python_file: "gs://dae-integrador-2025/jobs/etl_spark/silver/silver_simbad_job.py"
+      args: ["proyecto-integrador-dae-2025", "dae-integrador-2025"]
+      depends_on: ["bronze_etl"]
+      
+    - name: "gold_etl"
+      type: "dataproc_job"
+      cluster: "cluster-integrador-2025" 
+      job_type: "pyspark"
+      main_python_file: "gs://dae-integrador-2025/jobs/etl_spark/gold/gold_indicators_job.py"
+      args: ["proyecto-integrador-dae-2025", "dae-integrador-2025"]
+      depends_on: ["silver_etl"]
+
+# BigQuery Scheduled Queries (Alternative to DataProc for regular loads)
+bigquery_schedules:
+  - name: "silver_simbad_merge"
+    description: "Incremental merge to silver table"
+    schedule: "0 4 20 * *"  # 4:00 AM on day 20
+    query_file: "sql/sp_silver_upsert.sql"
+    destination_project: "proyecto-integrador-dae-2025"
+    
+  - name: "gold_indicators_refresh"
+    description: "Refresh gold indicators table"
+    schedule: "0 6 20 * *"  # 6:00 AM on day 20  
+    query_file: "sql/sp_gold_create.sql"
+    destination_project: "proyecto-integrador-dae-2025"
