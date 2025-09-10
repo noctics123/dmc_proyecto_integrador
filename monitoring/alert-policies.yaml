@@ -1,0 +1,106 @@
+# Cloud Monitoring Alert Policies for DMC Pipeline
+# Apply with: gcloud alpha monitoring policies create --policy-from-file=alert-policies.yaml
+
+displayName: "DMC Pipeline Monitoring Alerts"
+policies:
+  # 1. DataProc Job Failure Alert
+  - displayName: "DataProc Job Failure"
+    documentation:
+      content: "Alert when DataProc jobs fail"
+      mimeType: "text/markdown"
+    conditions:
+      - displayName: "DataProc job failed"
+        conditionThreshold:
+          filter: 'resource.type="dataproc_job" AND metric.type="compute.googleapis.com/instance/up"'
+          comparison: COMPARISON_EQUAL
+          thresholdValue: 0
+          duration: "60s"
+    combiner: OR
+    enabled: true
+    notificationChannels:
+      - "projects/proyecto-integrador-dae-2025/notificationChannels/[NOTIFICATION_CHANNEL_ID]"
+    alertStrategy:
+      autoClose: "86400s"  # 24 hours
+
+  # 2. BigQuery Query Failure Alert
+  - displayName: "BigQuery Query Failures"
+    documentation:
+      content: "Alert when BigQuery queries fail frequently"
+      mimeType: "text/markdown"
+    conditions:
+      - displayName: "High BigQuery error rate"
+        conditionThreshold:
+          filter: 'resource.type="bigquery_project" AND metric.type="bigquery.googleapis.com/job/num_failed_jobs"'
+          comparison: COMPARISON_GREATER_THAN
+          thresholdValue: 5
+          duration: "300s"
+        aggregations:
+          - alignmentPeriod: "300s"
+            perSeriesAligner: ALIGN_RATE
+            crossSeriesReducer: REDUCE_SUM
+    combiner: OR
+    enabled: true
+    notificationChannels:
+      - "projects/proyecto-integrador-dae-2025/notificationChannels/[NOTIFICATION_CHANNEL_ID]"
+
+  # 3. Data Freshness Alert
+  - displayName: "Data Freshness Issue"
+    documentation:
+      content: "Alert when data hasn't been updated in expected timeframe"
+      mimeType: "text/markdown"
+    conditions:
+      - displayName: "Data older than 48 hours"
+        conditionThreshold:
+          filter: 'resource.type="gcs_bucket" AND metric.type="storage.googleapis.com/storage/object_count"'
+          comparison: COMPARISON_EQUAL
+          thresholdValue: 0
+          duration: "3600s"
+    combiner: OR
+    enabled: true
+
+  # 4. Cost Budget Alert
+  - displayName: "Monthly Budget Exceeded"
+    documentation:
+      content: "Alert when monthly GCP costs exceed budget"
+      mimeType: "text/markdown"
+    conditions:
+      - displayName: "Budget threshold exceeded"
+        conditionThreshold:
+          filter: 'metric.type="billing.googleapis.com/billing/billed_cost"'
+          comparison: COMPARISON_GREATER_THAN
+          thresholdValue: 200.00  # $200 monthly budget
+          duration: "3600s"
+    combiner: OR
+    enabled: true
+
+  # 5. Cloud Run Service Down
+  - displayName: "Cloud Run Service Down"
+    documentation:
+      content: "Alert when Cloud Run landing services are down"
+      mimeType: "text/markdown"
+    conditions:
+      - displayName: "Cloud Run service unavailable"
+        conditionThreshold:
+          filter: 'resource.type="cloud_run_revision" AND metric.type="run.googleapis.com/container/billable_instance_time"'
+          comparison: COMPARISON_EQUAL
+          thresholdValue: 0
+          duration: "900s"  # 15 minutes
+    combiner: OR
+    enabled: true
+
+# Notification Channels Configuration
+notificationChannels:
+  - displayName: "Email Notifications"
+    type: "email"
+    labels:
+      email_address: "admin@example.com"  # Replace with actual email
+    description: "Email notifications for critical alerts"
+    enabled: true
+
+  - displayName: "Slack Notifications" 
+    type: "slack"
+    labels:
+      channel_name: "#data-pipeline-alerts"
+      url: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"  # Replace with actual webhook
+    description: "Slack notifications for pipeline alerts"
+    enabled: true
