@@ -4,6 +4,8 @@ import { Layout, ConfigProvider } from 'antd';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
+import { AppProvider } from './contexts/AppContext';
+
 import AppHeader from './components/Layout/AppHeader';
 import AppSidebar from './components/Layout/AppSidebar';
 import Dashboard from './pages/Dashboard';
@@ -41,28 +43,30 @@ function App() {
       }}
     >
       <QueryClientProvider client={queryClient}>
-        <Router>
-          <Layout style={{ minHeight: '100vh' }}>
-            <AppSidebar />
-            <Layout>
-              <AppHeader />
-              <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
-                <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
-                  <Routes>
-                    <Route path="/" element={<Navigate to="/dashboard" />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/pipeline" element={<PipelineStatus />} />
-                    <Route path="/deployments" element={<Deployments />} />
-                    <Route path="/data-quality" element={<DataQuality />} />
-                    <Route path="/monitoring" element={<Monitoring />} />
-                    <Route path="/settings" element={<Settings />} />
-                  </Routes>
-                </div>
-              </Content>
+        <AppProvider>
+          <Router>
+            <Layout style={{ minHeight: '100vh' }}>
+              <AppSidebar />
+              <Layout>
+                <AppHeader />
+                <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
+                  <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
+                    <Routes>
+                      <Route path="/" element={<Navigate to="/dashboard" />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/pipeline" element={<PipelineStatus />} />
+                      <Route path="/deployments" element={<Deployments />} />
+                      <Route path="/data-quality" element={<DataQuality />} />
+                      <Route path="/monitoring" element={<Monitoring />} />
+                      <Route path="/settings" element={<Settings />} />
+                    </Routes>
+                  </div>
+                </Content>
+              </Layout>
             </Layout>
-          </Layout>
-        </Router>
-        <ReactQueryDevtools initialIsOpen={false} />
+          </Router>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </AppProvider>
       </QueryClientProvider>
     </ConfigProvider>
   );

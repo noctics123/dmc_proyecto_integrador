@@ -41,7 +41,7 @@ import {
 import { usePipelineStatus, useDataQuality } from '../hooks/usePipelineData';
 
 const { Title, Text, Paragraph } = Typography;
-const { TabPane } = Tabs;
+// Removed deprecated TabPane - using items array instead
 const { RangePicker } = DatePicker;
 
 interface ExecutionHistory {
@@ -382,163 +382,179 @@ const Monitoring: React.FC = () => {
       </Row>
 
       <Card>
-        <Tabs activeKey={activeTab} onChange={setActiveTab}>
-          <TabPane tab="📋 Historial de Ejecuciones" key="executions">
-            <Space style={{ marginBottom: 16 }}>
-              <Select
-                placeholder="Filtrar por estado"
-                style={{ width: 150 }}
-                value={filterStatus}
-                onChange={setFilterStatus}
-              >
-                <Select.Option value="all">Todos</Select.Option>
-                <Select.Option value="success">Exitosos</Select.Option>
-                <Select.Option value="failed">Fallidos</Select.Option>
-                <Select.Option value="running">En Curso</Select.Option>
-                <Select.Option value="warning">Con Warnings</Select.Option>
-              </Select>
+        <Tabs 
+          activeKey={activeTab} 
+          onChange={setActiveTab}
+          items={[
+            {
+              key: 'executions',
+              label: '📋 Historial de Ejecuciones',
+              children: (
+                <div>
+                  <Space style={{ marginBottom: 16 }}>
+                    <Select
+                      placeholder="Filtrar por estado"
+                      style={{ width: 150 }}
+                      value={filterStatus}
+                      onChange={setFilterStatus}
+                    >
+                      <Select.Option value="all">Todos</Select.Option>
+                      <Select.Option value="success">Exitosos</Select.Option>
+                      <Select.Option value="failed">Fallidos</Select.Option>
+                      <Select.Option value="running">En Curso</Select.Option>
+                      <Select.Option value="warning">Con Warnings</Select.Option>
+                    </Select>
 
-              <Select
-                placeholder="Filtrar por capa"
-                style={{ width: 120 }}
-                value={filterLayer}
-                onChange={setFilterLayer}
-              >
-                <Select.Option value="all">Todas</Select.Option>
-                <Select.Option value="landing">Landing</Select.Option>
-                <Select.Option value="bronze">Bronze</Select.Option>
-                <Select.Option value="silver">Silver</Select.Option>
-                <Select.Option value="gold">Gold</Select.Option>
-              </Select>
+                    <Select
+                      placeholder="Filtrar por capa"
+                      style={{ width: 120 }}
+                      value={filterLayer}
+                      onChange={setFilterLayer}
+                    >
+                      <Select.Option value="all">Todas</Select.Option>
+                      <Select.Option value="landing">Landing</Select.Option>
+                      <Select.Option value="bronze">Bronze</Select.Option>
+                      <Select.Option value="silver">Silver</Select.Option>
+                      <Select.Option value="gold">Gold</Select.Option>
+                    </Select>
 
-              <Button icon={<ReloadOutlined />}>Refrescar</Button>
-              <Button icon={<DownloadOutlined />}>Exportar</Button>
-            </Space>
+                    <Button icon={<ReloadOutlined />}>Refrescar</Button>
+                    <Button icon={<DownloadOutlined />}>Exportar</Button>
+                  </Space>
 
-            <Table
-              columns={executionColumns}
-              dataSource={filteredExecutions}
-              rowKey="id"
-              size="middle"
-              pagination={{ pageSize: 10 }}
-            />
-          </TabPane>
-
-          <TabPane tab="🚨 Problemas Actuales" key="issues">
-            <List
-              dataSource={currentIssues}
-              renderItem={(issue) => (
-                <List.Item
-                  actions={[
-                    <Button type="link">Ver Detalles</Button>,
-                    <Button type="link">Resolver</Button>
-                  ]}
-                >
-                  <List.Item.Meta
-                    avatar={
-                      <Badge 
-                        status={getSeverityColor(issue.severity) as any} 
-                        dot
-                      >
-                        <BugOutlined style={{ fontSize: '18px' }} />
-                      </Badge>
-                    }
-                    title={
-                      <div>
-                        <Tag color={getSeverityColor(issue.severity)}>
-                          {issue.severity.toUpperCase()}
-                        </Tag>
-                        {issue.component} - {issue.message}
-                      </div>
-                    }
-                    description={
-                      <div>
-                        <Paragraph style={{ margin: '4px 0' }}>
-                          <strong>Descripción:</strong> {issue.description}
-                        </Paragraph>
-                        <Paragraph style={{ margin: '4px 0' }}>
-                          <strong>Solución:</strong> {issue.solution}
-                        </Paragraph>
-                        <Text type="secondary">{issue.timestamp}</Text>
-                      </div>
-                    }
+                  <Table
+                    columns={executionColumns}
+                    dataSource={filteredExecutions}
+                    rowKey="id"
+                    size="middle"
+                    pagination={{ pageSize: 10 }}
                   />
-                </List.Item>
-              )}
-            />
-          </TabPane>
-
-          <TabPane tab="📊 Stored Procedures" key="procedures">
-            <Row gutter={16}>
-              <Col span={8}>
-                <Card size="small" title="📦 Bronze Layer">
-                  <List size="small">
-                    <List.Item>
-                      <div>
-                        <Text code>sp_bronze_simbad</Text>
-                        <br />
-                        <Text type="secondary">Landing → Bronze conversion</Text>
-                      </div>
-                      <Tag color="green">ACTIVO</Tag>
+                </div>
+              ),
+            },
+            {
+              key: 'issues',
+              label: '🚨 Problemas Actuales',
+              children: (
+                <List
+                  dataSource={currentIssues}
+                  renderItem={(issue) => (
+                    <List.Item
+                      actions={[
+                        <Button key="details" type="link">Ver Detalles</Button>,
+                        <Button key="resolve" type="link">Resolver</Button>
+                      ]}
+                    >
+                      <List.Item.Meta
+                        avatar={
+                          <Badge 
+                            status={getSeverityColor(issue.severity) as any} 
+                            dot
+                          >
+                            <BugOutlined style={{ fontSize: '18px' }} />
+                          </Badge>
+                        }
+                        title={
+                          <div>
+                            <Tag color={getSeverityColor(issue.severity)}>
+                              {issue.severity.toUpperCase()}
+                            </Tag>
+                            {issue.component} - {issue.message}
+                          </div>
+                        }
+                        description={
+                          <div>
+                            <Paragraph style={{ margin: '4px 0' }}>
+                              <strong>Descripción:</strong> {issue.description}
+                            </Paragraph>
+                            <Paragraph style={{ margin: '4px 0' }}>
+                              <strong>Solución:</strong> {issue.solution}
+                            </Paragraph>
+                            <Text type="secondary">{issue.timestamp}</Text>
+                          </div>
+                        }
+                      />
                     </List.Item>
-                    <List.Item>
-                      <div>
-                        <Text code>sp_bronze_macro</Text>
-                        <br />
-                        <Text type="secondary">Macro indicators ETL</Text>
-                      </div>
-                      <Tag color="green">ACTIVO</Tag>
-                    </List.Item>
-                  </List>
-                </Card>
-              </Col>
-              <Col span={8}>
-                <Card size="small" title="🥈 Silver Layer">
-                  <List size="small">
-                    <List.Item>
-                      <div>
-                        <Text code>sp_silver_merge</Text>
-                        <br />
-                        <Text type="secondary">MERGE incremental + dedupe</Text>
-                      </div>
-                      <Tag color="blue">EN CURSO</Tag>
-                    </List.Item>
-                    <List.Item>
-                      <div>
-                        <Text code>sp_silver_quality</Text>
-                        <br />
-                        <Text type="secondary">Data quality validation</Text>
-                      </div>
-                      <Tag color="orange">WARNING</Tag>
-                    </List.Item>
-                  </List>
-                </Card>
-              </Col>
-              <Col span={8}>
-                <Card size="small" title="🥇 Gold Layer">
-                  <List size="small">
-                    <List.Item>
-                      <div>
-                        <Text code>sp_gold_indicators</Text>
-                        <br />
-                        <Text type="secondary">Business metrics calculation</Text>
-                      </div>
-                      <Tag color="default">PENDIENTE</Tag>
-                    </List.Item>
-                    <List.Item>
-                      <div>
-                        <Text code>sp_gold_external</Text>
-                        <br />
-                        <Text type="secondary">External data integration</Text>
-                      </div>
-                      <Tag color="default">PENDIENTE</Tag>
-                    </List.Item>
-                  </List>
-                </Card>
-              </Col>
-            </Row>
-          </TabPane>
-        </Tabs>
+                  )}
+                />
+              ),
+            },
+            {
+              key: 'procedures',
+              label: '📊 Stored Procedures',
+              children: (
+                <Row gutter={16}>
+                  <Col span={8}>
+                    <Card size="small" title="📦 Bronze Layer">
+                      <List size="small">
+                        <List.Item>
+                          <div>
+                            <Text code>sp_bronze_simbad</Text>
+                            <br />
+                            <Text type="secondary">Landing → Bronze conversion</Text>
+                          </div>
+                          <Tag color="green">ACTIVO</Tag>
+                        </List.Item>
+                        <List.Item>
+                          <div>
+                            <Text code>sp_bronze_macro</Text>
+                            <br />
+                            <Text type="secondary">Macro indicators ETL</Text>
+                          </div>
+                          <Tag color="green">ACTIVO</Tag>
+                        </List.Item>
+                      </List>
+                    </Card>
+                  </Col>
+                  <Col span={8}>
+                    <Card size="small" title="🥈 Silver Layer">
+                      <List size="small">
+                        <List.Item>
+                          <div>
+                            <Text code>sp_silver_merge</Text>
+                            <br />
+                            <Text type="secondary">MERGE incremental + dedupe</Text>
+                          </div>
+                          <Tag color="blue">EN CURSO</Tag>
+                        </List.Item>
+                        <List.Item>
+                          <div>
+                            <Text code>sp_silver_quality</Text>
+                            <br />
+                            <Text type="secondary">Data quality validation</Text>
+                          </div>
+                          <Tag color="orange">WARNING</Tag>
+                        </List.Item>
+                      </List>
+                    </Card>
+                  </Col>
+                  <Col span={8}>
+                    <Card size="small" title="🥇 Gold Layer">
+                      <List size="small">
+                        <List.Item>
+                          <div>
+                            <Text code>sp_gold_indicators</Text>
+                            <br />
+                            <Text type="secondary">Business metrics calculation</Text>
+                          </div>
+                          <Tag color="default">PENDIENTE</Tag>
+                        </List.Item>
+                        <List.Item>
+                          <div>
+                            <Text code>sp_gold_external</Text>
+                            <br />
+                            <Text type="secondary">External data integration</Text>
+                          </div>
+                          <Tag color="default">PENDIENTE</Tag>
+                        </List.Item>
+                      </List>
+                    </Card>
+                  </Col>
+                </Row>
+              ),
+            },
+          ]}
+        />
       </Card>
 
       {/* Modal de Logs Detallados */}

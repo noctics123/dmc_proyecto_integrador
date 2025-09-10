@@ -9,58 +9,67 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// Mock data for demo mode
-const mockData = {
-  pipelineStatus: {
-    dataproc: {
-      component: 'dataproc',
-      component_type: 'dataproc',
-      state: 'stopped',
-      last_run: '2025-01-09T09:15:00Z',
-      metrics: {
-        worker_count: 4,
-        master_machine_type: 'n2-standard-2',
-        cluster_uuid: 'ed10ff14-bd3b-46f2-a14d-a9c04ae72a9b'
+// Dynamic mock data generator
+const generateDynamicMockData = () => {
+  const now = new Date();
+  const randomVariation = () => Math.floor(Math.random() * 20) - 10; // -10 to +10 variation
+  
+  return {
+    pipelineStatus: {
+      dataproc: {
+        component: 'dataproc',
+        component_type: 'dataproc',
+        state: Math.random() > 0.7 ? 'running' : 'stopped',
+        last_run: new Date(now.getTime() - Math.random() * 3600000).toISOString(), // Random within last hour
+        metrics: {
+          worker_count: 4,
+          master_machine_type: 'n2-standard-2',
+          cluster_uuid: 'ed10ff14-bd3b-46f2-a14d-a9c04ae72a9b',
+          progress_percentage: Math.random() > 0.5 ? Math.floor(Math.random() * 100) : undefined
+        }
+      },
+      bigquery_bronze: {
+        component: 'bigquery_bronze',
+        component_type: 'bronze',
+        state: Math.random() > 0.8 ? 'running' : 'healthy',
+        last_run: new Date(now.getTime() - Math.random() * 7200000).toISOString(),
+        metrics: {
+          table_count: 4,
+          dataset_size_mb: 1250 + randomVariation() * 5,
+          progress_percentage: Math.random() > 0.7 ? Math.floor(Math.random() * 100) : undefined
+        }
+      },
+      bigquery_silver: {
+        component: 'bigquery_silver_clean',
+        component_type: 'silver',
+        state: Math.random() > 0.6 ? 'running' : 'healthy',
+        last_run: new Date(now.getTime() - Math.random() * 1800000).toISOString(),
+        metrics: {
+          table_count: 1,
+          dataset_size_mb: 890 + randomVariation() * 3,
+          progress_percentage: Math.random() > 0.6 ? Math.floor(Math.random() * 100) : undefined
+        }
+      },
+      landing_simbad: {
+        component: 'landing_simbad',
+        component_type: 'landing',
+        state: Math.random() > 0.9 ? 'running' : 'healthy',
+        last_run: new Date(now.getTime() - Math.random() * 3600000).toISOString(),
+        metrics: {
+          records_processed: 15234 + randomVariation() * 100,
+          progress_percentage: Math.random() > 0.8 ? Math.floor(Math.random() * 100) : undefined
+        }
+      },
+      landing_macroeconomics: {
+        component: 'landing_macroeconomics',
+        component_type: 'landing',
+        state: Math.random() > 0.9 ? 'running' : 'healthy',
+        last_run: new Date(now.getTime() - Math.random() * 3600000).toISOString(),
+        metrics: {
+          records_processed: 3456 + randomVariation() * 20,
+          progress_percentage: Math.random() > 0.8 ? Math.floor(Math.random() * 100) : undefined
+        }
       }
-    },
-    bigquery_bronze: {
-      component: 'bigquery_bronze',
-      component_type: 'bronze',
-      state: 'healthy',
-      last_run: '2025-01-10T08:35:00Z',
-      metrics: {
-        table_count: 4,
-        dataset_size_mb: 1250
-      }
-    },
-    bigquery_silver: {
-      component: 'bigquery_silver_clean',
-      component_type: 'silver',
-      state: 'running',
-      last_run: '2025-01-10T08:48:00Z',
-      metrics: {
-        table_count: 1,
-        dataset_size_mb: 890
-      }
-    },
-    landing_simbad: {
-      component: 'landing_simbad',
-      component_type: 'landing',
-      state: 'healthy',
-      last_run: '2025-01-10T08:30:00Z',
-      metrics: {
-        records_processed: 15234
-      }
-    },
-    landing_macroeconomics: {
-      component: 'landing_macroeconomics',
-      component_type: 'landing',
-      state: 'healthy',
-      last_run: '2025-01-10T08:28:00Z',
-      metrics: {
-        records_processed: 3456
-      }
-    }
   },
   dataQuality: {
     datasets: {
@@ -92,9 +101,9 @@ const mockData = {
       'bronze.simbad_bronze_parquet_ext: Completeness below 99%'
     ],
     last_updated: new Date().toISOString()
-  },
-  costMetrics: {
-    total_monthly_cost: 125.50,
+    },
+    costMetrics: {
+      total_monthly_cost: 125.50 + randomVariation(),
     cost_by_service: {
       'BigQuery': 45.20,
       'Cloud Storage': 12.30,
@@ -107,9 +116,9 @@ const mockData = {
       { date: '2025-01-02', cost: 123.00 },
       { date: '2025-01-03', cost: 125.50 }
     ],
-    budget_utilization_pct: 62.75
-  },
-  performanceMetrics: {
+      budget_utilization_pct: 62.75 + randomVariation()
+    },
+    performanceMetrics: {
     avg_execution_time: {
       bronze_etl: 12.5,
       silver_etl: 8.2,
@@ -132,9 +141,23 @@ const mockData = {
       dataproc_cpu: 65.5,
       dataproc_memory: 72.1,
       bigquery_slots: 45.8,
-      cloud_run_cpu: 35.2
+      cloud_run_cpu: 35.2 + randomVariation()
     }
+  };
+};
+
+// Cache the mock data and regenerate periodically
+let mockDataCache = generateDynamicMockData();
+let lastCacheUpdate = Date.now();
+
+const getMockData = () => {
+  const now = Date.now();
+  // Regenerate mock data every 10 seconds to simulate real-time updates
+  if (now - lastCacheUpdate > 10000) {
+    mockDataCache = generateDynamicMockData();
+    lastCacheUpdate = now;
   }
+  return mockDataCache;
 };
 
 // API functions
@@ -142,27 +165,29 @@ export const pipelineAPI = {
   // Get all pipeline status
   getAllStatus: async () => {
     if (DEMO_MODE) {
-      return { data: mockData.pipelineStatus };
+      return { data: getMockData().pipelineStatus };
     }
     try {
       const response = await api.get('/api/pipelines/status');
       return response.data;
     } catch (error) {
-      console.warn('API not available, using mock data');
-      return mockData.pipelineStatus;
+      console.warn('API not available, using dynamic mock data');
+      return getMockData().pipelineStatus;
     }
   },
 
   // Get component status
   getComponentStatus: async (component: string) => {
     if (DEMO_MODE) {
+      const mockData = getMockData();
       return { data: mockData.pipelineStatus[component as keyof typeof mockData.pipelineStatus] };
     }
     try {
       const response = await api.get(`/api/pipelines/${component}/status`);
       return response.data;
     } catch (error) {
-      console.warn('API not available, using mock data');
+      console.warn('API not available, using dynamic mock data');
+      const mockData = getMockData();
       return mockData.pipelineStatus[component as keyof typeof mockData.pipelineStatus];
     }
   },
@@ -213,42 +238,42 @@ export const monitoringAPI = {
   // Get data quality metrics
   getDataQuality: async () => {
     if (DEMO_MODE) {
-      return { data: mockData.dataQuality };
+      return { data: getMockData().dataQuality };
     }
     try {
       const response = await api.get('/api/monitoring/data-quality');
       return response.data;
     } catch (error) {
-      console.warn('API not available, using mock data');
-      return mockData.dataQuality;
+      console.warn('API not available, using dynamic mock data');
+      return getMockData().dataQuality;
     }
   },
 
   // Get cost metrics
   getCostMetrics: async () => {
     if (DEMO_MODE) {
-      return { data: mockData.costMetrics };
+      return { data: getMockData().costMetrics };
     }
     try {
       const response = await api.get('/api/monitoring/costs');
       return response.data;
     } catch (error) {
-      console.warn('API not available, using mock data');
-      return mockData.costMetrics;
+      console.warn('API not available, using dynamic mock data');
+      return getMockData().costMetrics;
     }
   },
 
   // Get performance metrics
   getPerformanceMetrics: async () => {
     if (DEMO_MODE) {
-      return { data: mockData.performanceMetrics };
+      return { data: getMockData().performanceMetrics };
     }
     try {
       const response = await api.get('/api/monitoring/performance');
       return response.data;
     } catch (error) {
-      console.warn('API not available, using mock data');
-      return mockData.performanceMetrics;
+      console.warn('API not available, using dynamic mock data');
+      return getMockData().performanceMetrics;
     }
   },
 
@@ -280,11 +305,18 @@ export const monitoringAPI = {
   // Get real-time job progress
   getJobProgress: async (jobId: string) => {
     if (DEMO_MODE) {
+      // Simulate progressive completion for jobs
+      const baseProgress = Math.floor(Math.random() * 100);
+      const steps = [
+        'Iniciando...', 'Preparando datos...', 'Procesando...', 
+        'Validando...', 'Finalizando...', 'Completando...'
+      ];
+      const stepIndex = Math.floor((baseProgress / 100) * steps.length);
       return { 
         data: {
-          progress_percentage: Math.floor(Math.random() * 100),
-          current_step: 'Procesando datos...',
-          estimated_completion: new Date(Date.now() + 5 * 60 * 1000).toISOString()
+          progress_percentage: baseProgress,
+          current_step: steps[Math.min(stepIndex, steps.length - 1)],
+          estimated_completion: new Date(Date.now() + (100 - baseProgress) * 3000).toISOString()
         }
       };
     }
