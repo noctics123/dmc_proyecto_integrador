@@ -1,0 +1,88 @@
+/* DMC Pipeline Management App Styles */
+
+.App {
+  text-align: center;
+}
+
+/* Layout adjustments for sidebar */
+.ant-layout-content {
+  margin-left: 200px;
+  margin-top: 64px;
+  min-height: calc(100vh - 64px);
+}
+
+/* Custom styles for components */
+.pipeline-status-card {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-icon {
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.metric-card {
+  text-align: center;
+  padding: 24px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.metric-card .ant-statistic-title {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.metric-card .ant-statistic-content {
+  color: white;
+}
+
+/* Dashboard specific styles */
+.dashboard-header {
+  margin-bottom: 24px;
+  padding: 24px;
+  background: linear-gradient(90deg, #1890ff, #36cfc9);
+  border-radius: 8px;
+  color: white;
+}
+
+.component-status-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+}
+
+.component-status-item:hover {
+  background: #f5f5f5;
+  border-color: #d9d9d9;
+}
+
+.progress-container {
+  margin: 8px 0;
+}
+
+.progress-details {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .ant-layout-content {
+    margin-left: 0;
+    margin-top: 64px;
+  }
+  
+  .ant-layout-sider {
+    position: absolute;
+    z-index: 999;
+  }
+}
