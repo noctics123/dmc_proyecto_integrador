@@ -250,6 +250,51 @@ export const monitoringAPI = {
       console.warn('API not available, using mock data');
       return mockData.performanceMetrics;
     }
+  },
+
+  // Get deployment logs in real-time
+  getDeploymentLogs: async (jobId: string, lines: number = 100) => {
+    if (DEMO_MODE) {
+      return { 
+        data: {
+          logs: [
+            { timestamp: '10:30:15', level: 'INFO', message: 'Iniciando despliegue de servicios...' },
+            { timestamp: '10:30:16', level: 'INFO', message: 'Verificando configuración Cloud Build...' },
+            { timestamp: '10:30:18', level: 'INFO', message: 'Construyendo imagen Docker...' },
+            { timestamp: '10:30:35', level: 'SUCCESS', message: 'Imagen construida exitosamente' },
+            { timestamp: '10:30:50', level: 'INFO', message: 'Servicio desplegado correctamente' }
+          ],
+          hasMore: false
+        }
+      };
+    }
+    try {
+      const response = await api.get(`/api/logs/${jobId}?lines=${lines}`);
+      return response.data;
+    } catch (error) {
+      console.warn('Logs API not available');
+      return { logs: [], hasMore: false };
+    }
+  },
+
+  // Get real-time job progress
+  getJobProgress: async (jobId: string) => {
+    if (DEMO_MODE) {
+      return { 
+        data: {
+          progress_percentage: Math.floor(Math.random() * 100),
+          current_step: 'Procesando datos...',
+          estimated_completion: new Date(Date.now() + 5 * 60 * 1000).toISOString()
+        }
+      };
+    }
+    try {
+      const response = await api.get(`/api/jobs/${jobId}/progress`);
+      return response.data;
+    } catch (error) {
+      console.warn('Job progress API not available');
+      return { progress_percentage: 0, current_step: 'Unknown', estimated_completion: null };
+    }
   }
 };
 

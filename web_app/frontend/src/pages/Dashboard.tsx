@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { usePipelineStatus, useCostMetrics, usePerformanceMetrics, useDataQuality } from '../hooks/usePipelineData';
+import ConnectionStatus from '../components/ConnectionStatus';
 
 const Dashboard: React.FC = () => {
   // Fetch real data

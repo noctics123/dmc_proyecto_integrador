@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Row, Col, Tag, Button, Space, Descriptions, Progress, Timeline } from 'antd';
+import { Card, Row, Col, Tag, Button, Space, Descriptions, Progress, Timeline, Spin, Alert } from 'antd';
 import { 
   PlayCircleOutlined, 
   StopOutlined, 
@@ -7,65 +7,63 @@ import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
   ClockCircleOutlined,
+  SyncOutlined,
 } from '@ant-design/icons';
+import { usePipelineStatus } from '../hooks/usePipelineData';
 
 const PipelineStatus: React.FC = () => {
-  const components = [
-    {
+  const { data: pipelineData, isLoading, error, isFetching, dataUpdatedAt } = usePipelineStatus();
+
+  // Component mapping for display names and descriptions
+  const componentDisplayInfo = {
+    landing_simbad: {
       name: 'Landing - SIMBAD',
-      status: 'healthy',
-      lastRun: '2025-01-10 08:30:00',
-      nextRun: '2025-02-20 00:00:00',
-      duration: '2m 15s',
-      records: '15,234',
       description: 'SIMBAD banking data scraper',
+      nextRun: '2025-02-20 00:00:00'
     },
-    {
-      name: 'Landing - Macroeconomics',
-      status: 'healthy',
-      lastRun: '2025-01-10 08:28:00',
-      nextRun: '2025-02-20 00:00:00',
-      duration: '1m 45s',
-      records: '3,456',
+    landing_macroeconomics: {
+      name: 'Landing - Macroeconomics', 
       description: 'Macroeconomic indicators scraper',
+      nextRun: '2025-02-20 00:00:00'
     },
-    {
+    bigquery_bronze: {
       name: 'Bronze ETL',
-      status: 'running',
-      lastRun: '2025-01-10 08:35:00',
-      nextRun: '2025-02-20 02:00:00',
-      duration: '12m 45s (in progress)',
-      records: '15,234',
       description: 'Raw data processing to Bronze layer',
+      nextRun: '2025-02-20 02:00:00'
     },
-    {
+    bigquery_silver: {
       name: 'Silver ETL',
-      status: 'pending',
-      lastRun: '2025-01-09 08:48:00',
-      nextRun: '2025-02-20 04:00:00',
-      duration: '8m 12s',
-      records: '14,892',
-      description: 'Data cleaning and deduplication',
+      description: 'Data cleaning and deduplication', 
+      nextRun: '2025-02-20 04:00:00'
     },
-    {
+    bigquery_gold: {
       name: 'Gold ETL',
-      status: 'pending',
-      lastRun: '2025-01-09 08:56:00',
-      nextRun: '2025-02-20 06:00:00',
-      duration: '5m 30s',
-      records: '2,156',
       description: 'Business metrics and indicators',
+      nextRun: '2025-02-20 06:00:00'
     },
-    {
+    dataproc: {
       name: 'DataProc Cluster',
-      status: 'stopped',
-      lastRun: '2025-01-09 09:15:00',
-      nextRun: 'On demand',
-      duration: 'N/A',
-      records: 'N/A',
       description: 'Spark processing cluster for historical reprocessing',
-    },
-  ];
+      nextRun: 'On demand'
+    }
+  };
+
+  // Transform API data to component format
+  const components = pipelineData ? Object.entries(pipelineData).map(([key, value]: [string, any]) => {
+    const info = componentDisplayInfo[key as keyof typeof componentDisplayInfo];
+    return {
+      id: key,
+      name: info?.name || key,
+      status: value.state,
+      lastRun: new Date(value.last_run).toLocaleString(),
+      nextRun: info?.nextRun || 'TBD',
+      duration: value.state === 'running' ? 'In progress...' : 'N/A',
+      records: value.metrics?.records_processed?.toLocaleString() || 
+               value.metrics?.table_count?.toString() || 'N/A',
+      description: info?.description || 'Pipeline component',
+      metrics: value.metrics
+    };
+  }) : [];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -103,6 +101,38 @@ const PipelineStatus: React.FC = () => {
   const handleRestart = (componentName: string) => {
     console.log(`Restarting ${componentName}`);
     // API call to restart component
+  };
+
+  // Calcular progreso dinámico basado en métricas reales
+  const calculateDynamicProgress = (component: any) => {
+    const now = new Date().getTime();
+    const lastRun = new Date(component.last_run).getTime();
+    const timeSinceStart = now - lastRun;
+    
+    // Estimaciones basadas en el tipo de componente y tiempo transcurrido
+    const estimatedTimes = {
+      'landing_simbad': 3 * 60 * 1000, // 3 minutos
+      'landing_macroeconomics': 2 * 60 * 1000, // 2 minutos
+      'bigquery_bronze': 15 * 60 * 1000, // 15 minutos
+      'bigquery_silver': 10 * 60 * 1000, // 10 minutos
+      'bigquery_gold': 5 * 60 * 1000, // 5 minutos
+      'dataproc': 20 * 60 * 1000, // 20 minutos
+    };
+
+    const estimatedTime = estimatedTimes[component.component as keyof typeof estimatedTimes] || 10 * 60 * 1000;
+    const progress = Math.min(95, Math.round((timeSinceStart / estimatedTime) * 100));
+    
+    return progress;
+  };
+
+  // Describir la etapa actual del progreso
+  const getProgressDescription = (componentId: string, percent: number) => {
+    if (percent < 10) return 'Iniciando...';
+    if (percent < 30) return 'Preparando datos...';
+    if (percent < 60) return 'Procesando...';
+    if (percent < 85) return 'Finalizando...';
+    if (percent < 95) return 'Limpieza...';
+    return 'Casi completo...';
   };
 
   const pipelineFlow = [
@@ -148,11 +178,45 @@ const PipelineStatus: React.FC = () => {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div style={{ padding: '0 24px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: '0 24px' }}>
+        <Alert
+          message="Error al cargar datos del pipeline"
+          description="No se pudo conectar con el backend. Verifica que el servidor esté ejecutándose."
+          type="error"
+          showIcon
+        />
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: '0 24px' }}>
       <Row gutter={[16, 16]}>
         <Col span={16}>
-          <Card title="Pipeline Components" bordered={false}>
+          <Card 
+            title={
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>Pipeline Components</span>
+                <Space>
+                  {isFetching && <SyncOutlined spin />}
+                  <span style={{ fontSize: '12px', color: '#666' }}>
+                    Última actualización: {new Date(dataUpdatedAt).toLocaleTimeString()}
+                  </span>
+                </Space>
+              </div>
+            } 
+            bordered={false}
+          >
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
               {components.map((component, index) => (
                 <Card key={index} size="small" style={{ backgroundColor: '#fafafa' }}>
@@ -231,10 +295,11 @@ const PipelineStatus: React.FC = () => {
                   
                   {component.status === 'running' && (
                     <Progress 
-                      percent={65} 
+                      percent={component.metrics?.progress_percentage || calculateDynamicProgress(component)}
                       size="small" 
                       status="active"
                       style={{ marginTop: 8 }}
+                      format={(percent) => `${percent}% - ${getProgressDescription(component.id, percent || 0)}`}
                     />
                   )}
                 </Card>

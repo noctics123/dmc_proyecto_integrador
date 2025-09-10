@@ -17,13 +17,16 @@ import './App.css';
 
 const { Content } = Layout;
 
-// Create a client
+// Create a client optimized for real-time updates
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnWindowFocus: true, // Refetch when user returns to tab
+      retry: 2,
+      staleTime: 30 * 1000, // 30 seconds - data is fresh for 30 seconds
+      cacheTime: 2 * 60 * 1000, // 2 minutes - keep in cache for 2 minutes
+      refetchOnReconnect: true, // Refetch when connection is restored
+      notifyOnChangeProps: ['data', 'error', 'isLoading'], // Only re-render when these change
     },
   },
 });
