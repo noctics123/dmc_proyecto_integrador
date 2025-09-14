@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gcloud config set project:*)",
+      "Bash(gcloud auth:*)",
+      "Bash(gcloud builds triggers:*)",
+      "Bash(gcloud run services:*)",
+      "Bash(gcloud run jobs:*)",
+      "Bash(gcloud dataproc clusters:*)",
+      "Bash(gcloud dataproc batches list:*)",
+      "Bash(gcloud storage ls:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
