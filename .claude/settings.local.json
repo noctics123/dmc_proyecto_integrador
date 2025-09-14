@@ -8,7 +8,11 @@
       "Bash(gcloud run jobs:*)",
       "Bash(gcloud dataproc clusters:*)",
       "Bash(gcloud dataproc batches list:*)",
-      "Bash(gcloud storage ls:*)"
+      "Bash(gcloud storage ls:*)",
+      "Read(//c/Users/ruben/Downloads/**)",
+      "Bash(gcloud config:*)",
+      "Bash(bq:*)",
+      "Bash(gcloud scheduler jobs list:*)"
     ],
     "deny": [],
     "ask": []
