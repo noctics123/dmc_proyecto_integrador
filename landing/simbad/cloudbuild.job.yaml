@@ -12,7 +12,7 @@ substitutions:
 steps:
 # 1) Build
 - name: gcr.io/cloud-builders/docker
-  args: [ 'build', '-t', '${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:$COMMIT_SHA', 'landing_simbad' ]
+  args: [ 'build', '-t', '${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:$COMMIT_SHA', 'landing/simbad' ]
 
 # 2) Push
 - name: gcr.io/cloud-builders/docker

@@ -15,7 +15,7 @@ substitutions:
 steps:
   # 1) Build
   - name: 'gcr.io/cloud-builders/docker'
-    dir: 'landing_simbad'
+    dir: 'landing/simbad'
     args:
       - 'build'
       - '-t'
@@ -30,7 +30,7 @@ steps:
 
   # 3) Deploy
   - name: 'gcr.io/cloud-builders/gcloud'
-    dir: 'landing_simbad'
+    dir: 'landing/simbad'
     args:
       - 'run'
       - 'deploy'

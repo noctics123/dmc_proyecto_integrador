@@ -10,7 +10,7 @@ substitutions:
 steps:
   # 1) Build
   - name: 'gcr.io/cloud-builders/docker'
-    dir: 'landing_run'
+    dir: 'landing/macroeconomics'
     args:
       - 'build'
       - '-t'
@@ -25,7 +25,7 @@ steps:
 
   # 3) Deploy (sin --allow-unauthenticated)
   - name: 'gcr.io/cloud-builders/gcloud'
-    dir: 'landing_run'
+    dir: 'landing/macroeconomics'
     args:
       - 'run'
       - 'deploy'
