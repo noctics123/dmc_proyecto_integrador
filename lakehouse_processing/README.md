@@ -12,14 +12,7 @@ lakehouse_processing/
 │   ├── silver_data_cleaning.ipynb             # Bronze → Silver (limpieza)
 │   └── gold_metrics_aggregation.ipynb         # Silver → Gold (métricas)
 │
-├── 📁 python_jobs/                 # Jobs PySpark standalone
-│   ├── 📁 bronze/                  # Ingesta a bronze layer
-│   ├── 📁 silver/                  # Transformaciones silver
-│   └── 📁 gold/                    # Agregaciones gold
-│
-└── 📁 common/                      # Configuraciones compartidas
-    ├── config.py                   # Configuración centralizada
-    └── utils_io.py                 # Utilidades de I/O
+└── README.md                       # Documentación del pipeline DataProc
 ```
 
 ## 🎯 Capas del Lakehouse
