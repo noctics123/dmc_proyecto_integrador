@@ -1455,6 +1455,133 @@ a {
   margin: 0;
 }
 
+/* Architecture Interactive Diagram */
+.architecture-svg-container {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 20px;
+  padding: var(--spacing-8);
+  margin: var(--spacing-8) 0;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.architecture-svg {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  border-radius: 12px;
+}
+
+.architecture-svg .interactive-group:hover {
+  transform: translateY(-5px);
+  filter: drop-shadow(0 8px 15px rgba(0,0,0,0.2));
+}
+
+.architecture-svg .svg-arrow {
+  animation: flowAnimation 3s ease-in-out infinite;
+}
+
+.architecture-svg .svg-arrow-historical {
+  animation: flowAnimationHistorical 4s ease-in-out infinite;
+}
+
+@keyframes flowAnimation {
+  0%, 100% { stroke-dasharray: 0, 20; }
+  50% { stroke-dasharray: 20, 0; }
+}
+
+@keyframes flowAnimationHistorical {
+  0%, 100% { stroke-dasharray: 5, 15; }
+  50% { stroke-dasharray: 15, 5; }
+}
+
+/* Architecture Modal */
+.arch-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.8);
+  backdrop-filter: blur(5px);
+}
+
+.arch-modal-content {
+  position: relative;
+  background: white;
+  margin: 2% auto;
+  padding: var(--spacing-8);
+  border-radius: 20px;
+  width: 95%;
+  height: 90%;
+  box-shadow: var(--shadow-2xl);
+  overflow: hidden;
+}
+
+.arch-modal-close {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-6);
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--gray-500);
+  cursor: pointer;
+  z-index: 1001;
+  background: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+}
+
+.arch-modal-close:hover {
+  color: var(--error-color);
+  transform: scale(1.1);
+}
+
+.arch-modal svg {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+}
+
+/* Tooltip for Architecture */
+.arch-tooltip {
+  position: absolute;
+  background: var(--gray-900);
+  color: white;
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: 8px;
+  font-size: var(--font-size-sm);
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  max-width: 250px;
+  box-shadow: var(--shadow-lg);
+}
+
+.arch-tooltip.show {
+  opacity: 1;
+}
+
+.arch-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--gray-900) transparent transparent transparent;
+}
+
 /* Responsive Design para nuevas secciones */
 @media (max-width: 768px) {
   .objective-grid,
@@ -1475,6 +1602,17 @@ a {
   
   .team-member {
     min-width: unset;
+  }
+  
+  .architecture-svg-container {
+    padding: var(--spacing-4);
+  }
+  
+  .arch-modal-content {
+    width: 98%;
+    height: 95%;
+    margin: 1% auto;
+    padding: var(--spacing-4);
   }
 }
 

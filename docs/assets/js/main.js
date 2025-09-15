@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initChart();
     initScrollEffects();
     initFAQs();
+    initArchitectureModal();
     initArchModal();
 
     // Initialize Lucide icons
@@ -581,6 +582,86 @@ function initArchModal() {
     });
 }
 
+// ========================================
+// Architecture Modal Functionality
+// ========================================
+function initArchitectureModal() {
+    const expandBtn = document.getElementById('expand-arch-btn');
+    const modal = document.getElementById('arch-modal');
+    const closeBtn = document.getElementById('arch-modal-close');
+
+    if (expandBtn && modal) {
+        expandBtn.addEventListener('click', () => {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        });
+    }
+
+    if (closeBtn && modal) {
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+    }
+
+    // Close modal when clicking outside
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal && modal.style.display === 'block') {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+}
+
+function initArchModal() {
+    const modal = document.getElementById('arch-modal');
+    if (!modal) return;
+
+    const interactiveGroups = modal.querySelectorAll('.interactive-group');
+    const infoBox = modal.querySelector('#info-box');
+    const infoTitle = modal.querySelector('#info-title');
+    const infoDesc = modal.querySelector('#info-desc');
+
+    interactiveGroups.forEach(group => {
+        group.addEventListener('mouseenter', (e) => {
+            const title = group.getAttribute('data-title');
+            const desc = group.getAttribute('data-desc');
+            
+            if (title && desc && infoBox && infoTitle && infoDesc) {
+                infoTitle.textContent = title;
+                infoDesc.textContent = desc;
+                infoBox.style.opacity = '1';
+                infoBox.style.pointerEvents = 'auto';
+                
+                // Position the info box near the mouse
+                const rect = group.getBoundingClientRect();
+                const modalRect = modal.getBoundingClientRect();
+                const x = rect.left - modalRect.left + rect.width / 2;
+                const y = rect.top - modalRect.top - 100;
+                
+                infoBox.setAttribute('transform', `translate(${x}, ${y})`);
+            }
+        });
+
+        group.addEventListener('mouseleave', () => {
+            if (infoBox) {
+                infoBox.style.opacity = '0';
+                infoBox.style.pointerEvents = 'none';
+            }
+        });
+    });
+}
+
 // Export functions for external use
 window.DMCPipeline = {
     initNavigation,
@@ -589,5 +670,7 @@ window.DMCPipeline = {
     initChart,
     animateCounters,
     debounce,
-    initFAQs
+    initFAQs,
+    initArchitectureModal,
+    initArchModal
 };
