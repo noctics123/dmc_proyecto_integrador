@@ -8,7 +8,7 @@ substitutions:
   _AR_REPO: containers
   _IMAGE: simbad-incremental
   _JOB: simbad-incremental-job
-  _SERVICE_ACCOUNT: run-landing-simbad-sa@${PROJECT_ID}.iam.gserviceaccount.com
+  _SERVICE_ACCOUNT: 51026942179-compute@developer.gserviceaccount.com
   _BUCKET: dae-integrador-2025
   _SB_SECRET: sb_api_key
   _SB_LOOKBACK_MONTHS: "3"
@@ -48,7 +48,7 @@ steps:
         --set-env-vars=SB_DATASET=simbad_carteras_aayp_hipotecarios \
         --set-env-vars=SB_LOOKBACK_MONTHS=${_SB_LOOKBACK_MONTHS} \
         --set-env-vars=PYTHONUNBUFFERED=1 \
-        --set-secrets=SB_API_KEY=${_SB_SECRET}:latest \
+        --set-env-vars=SB_API_KEY=dff2111ccbcd44c2ac47265b658949f3 \
         --labels=type=incremental,purpose=scheduled
 
 images:
