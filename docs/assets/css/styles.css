@@ -846,6 +846,58 @@ a {
   border-radius: var(--radius-sm);
 }
 
+/* Featured Documentation Card */
+.featured-doc {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.featured-doc::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  pointer-events: none;
+}
+
+.featured-doc:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+  border-color: transparent;
+}
+
+.featured-doc .doc-icon {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.featured-doc h3 {
+  color: white;
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-4);
+}
+
+.featured-doc p {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.featured-doc .doc-meta span {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(5px);
+}
+
+.featured-doc .doc-icon i {
+  color: white;
+}
+
 /* Footer */
 .footer {
   background: var(--gray-900);
