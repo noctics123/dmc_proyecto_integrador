@@ -505,45 +505,27 @@ function initArchModal() {
 
     if (!modal || !btn || !span) return;
 
-    const svg = modal.querySelector('svg');
-
     btn.onclick = function() {
-        modal.classList.add('visible');
-        if (svg) {
-            svg.classList.add('interactive-svg');
-            // Stagger animations for components
-            const components = svg.querySelectorAll('.interactive-group');
-            components.forEach((comp, index) => {
-                comp.style.animationDelay = `${0.5 + index * 0.1}s`;
-            });
-            // Stagger animations for flow paths
-            const paths = svg.querySelectorAll('.flow-path');
-            paths.forEach((path, index) => {
-                path.style.animationDelay = `${0.8 + index * 0.2}s`;
-            });
-        }
+        modal.style.display = "block";
     }
 
-    const closeModal = function() {
-        modal.classList.remove('visible');
-        if (svg) {
-            svg.classList.remove('interactive-svg');
-        }
+    span.onclick = function() {
+        modal.style.display = "none";
     }
-
-    span.onclick = closeModal;
 
     window.onclick = function(event) {
         if (event.target == modal) {
-            closeModal();
+            modal.style.display = "none";
         }
     }
 
     // SVG Interactivity
+    const svg = modal.querySelector('svg');
     if (!svg) return;
 
     const infoBox = svg.getElementById('info-box');
     const infoTitle = svg.getElementById('info-title');
+    const infoDescForeign = svg.getElementById('info-desc-foreign');
     const infoDesc = document.getElementById('info-desc');
 
     if (!infoBox || !infoTitle || !infoDesc) return;
@@ -564,10 +546,11 @@ function initArchModal() {
             let newX = svgP.x + 20;
             let newY = svgP.y - 10;
 
-            if ((newX + 300) > 1200) {
+            // Prevent tooltip from going off-screen
+            if ((newX + 300) > 1200) { // 300 is the width of the info box
                 newX = svgP.x - 320;
             }
-            if ((newY + 80) > 700) {
+            if ((newY + 80) > 700) { // 80 is the height of the info box
                 newY = svgP.y - 90;
             }
 
