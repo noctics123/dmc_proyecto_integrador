@@ -1069,123 +1069,132 @@
     <div id="arch-modal" class="arch-modal">
         <span id="arch-modal-close" class="arch-modal-close">&times;</span>
         <div class="arch-modal-content">
-            <svg viewBox="0 0 1600 900" class="interactive-svg" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <marker id="arrowhead-incremental" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="var(--clr-landing)" /></marker>
-                    <marker id="arrowhead-historical" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="var(--clr-bronze)" /></marker>
+                    <style>
+                        .bg-rect { fill: #0f172a; }
+                        .title-text { font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 600; fill: #e2e8f0; text-anchor: middle; }
+                        .subtitle-text { font-family: 'Inter', sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+                        .group-title { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500; fill: #cbd5e1; text-anchor: middle; }
+                        .service-title { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; fill: #94a3b8; text-anchor: middle; }
+                        .service-desc { font-family: 'Inter', sans-serif; font-size: 12px; fill: #64748b; text-anchor: middle; }
+                        .info-box { transition: opacity 0.2s ease-in-out; }
+                        .info-text { font-family: 'Inter', sans-serif; font-size: 13px; fill: #e2e8f0; }
+                        .info-title { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; fill: #f1f5f9; }
+                        .interactive-group { cursor: pointer; transition: all 0.2s ease-in-out; }
+                        .interactive-group:hover { filter: drop-shadow(0px 0px 10px #38bdf8); transform: translateY(-5px); }
+                    </style>
+                    <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#38bdf8" /></marker>
+                    <marker id="arrowhead-orange" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#f97316" /></marker>
                 </defs>
-                <rect width="1600" height="900" rx="20" class="bg-rect" />
 
-                <!-- Titles -->
-                <text x="800" y="50" class="title-text">Arquitectura Detallada del Pipeline de Datos</text>
-                <text x="800" y="75" class="subtitle-text">Haz clic en las capas para resaltar los flujos de datos</text>
+                <rect width="1200" height="700" rx="20" class="bg-rect" />
 
-                <!-- Main containers -->
-                <g id="g-fuentes">
-                    <rect x="50" y="120" width="200" height="660" class="glass-panel" rx="15" />
-                    <text x="150" y="160" class="group-title">Fuentes</text>
-                </g>
-                <g id="g-landing" class="interactive-group" data-flow="landing">
-                    <rect x="300" y="120" width="200" height="660" class="glass-panel" rx="15" />
-                    <text x="400" y="160" class="group-title layer-title-landing">Landing</text>
-                </g>
-                <g id="g-processing">
-                    <rect x="550" y="120" width="200" height="660" class="glass-panel" rx="15" />
-                    <text x="650" y="160" class="group-title">Procesamiento</text>
-                </g>
-                <g id="g-warehouse">
-                    <rect x="800" y="120" width="500" height="660" class="glass-panel" rx="15" />
-                    <text x="1050" y="160" class="group-title">Data Warehouse</text>
-                </g>
-                <g id="g-consumo">
-                    <rect x="1350" y="120" width="200" height="660" class="glass-panel" rx="15" />
-                    <text x="1450" y="160" class="group-title">Consumo</text>
+                <text x="600" y="40" class="title-text">Arquitectura Detallada del Pipeline de Datos</text>
+                <text x="600" y="65" class="subtitle-text">Diagrama interactivo de los componentes y flujos de datos</text>
+
+                <!-- SECTIONS -->
+                <line x1="180" y1="90" x2="180" y2="650" stroke="#334155" />
+                <line x1="360" y1="90" x2="360" y2="650" stroke="#334155" />
+                <line x1="540" y1="90" x2="540" y2="650" stroke="#334155" />
+                <line x1="980" y1="90" x2="980" y2="650" stroke="#334155" />
+                <text x="90" y="110" class="group-title">Fuentes</text>
+                <text x="270" y="110" class="group-title">Landing</text>
+                <text x="450" y="110" class="group-title">Procesamiento</text>
+                <text x="760" y="110" class="group-title">Data Warehouse</text>
+                <text x="1090" y1="110" class="group-title">Consumidores</text>
+
+                <!-- COMPONENTS -->
+                <!-- Source: SIMBAD API -->
+                <g id="g-source-simbad" class="interactive-group" data-title="Fuente: API SIMBAD" data-desc="API de la Superintendencia de Bancos que provee datos de créditos hipotecarios.">
+                    <rect x="40" y="150" width="100" height="100" rx="10" fill="#1e293b" />
+                    <text x="90" y="230" class="service-title">API SIMBAD</text>
                 </g>
 
-                <!-- Nodes -->
-                <g class="interactive-group" data-flow="fuentes" data-title="API SIMBAD" data-desc="Datos de créditos hipotecarios.">
-                    <rect x="90" y="200" width="120" height="120" rx="10" fill="#1e293b"/>
-                    <text x="150" y="300" class="service-title">API SIMBAD</text>
-                </g>
-                <g class="interactive-group" data-flow="fuentes" data-title="Datos Macroeconómicos" data-desc="Scraper de indicadores económicos.">
-                    <rect x="90" y="450" width="120" height="120" rx="10" fill="#1e293b"/>
-                    <text x="150" y="550" class="service-title">Datos Macro</text>
-                </g>
-                <g class="interactive-group" data-flow="landing" data-title="Cloud Storage" data-desc="Data Lake crudo para archivos CSV y Parquet.">
-                    <rect x="340" y="340" width="120" height="120" rx="10" fill="#1e293b"/>
-                    <text x="400" y="440" class="service-title">Cloud Storage</text>
-                </g>
-                <g class="interactive-group" data-flow="incremental" data-title="Cloud Scheduler" data-desc="Trigger diario para el pipeline incremental.">
-                    <rect x="590" y="200" width="120" height="120" rx="10" fill="#1e293b"/>
-                    <text x="650" y="300" class="service-title">Cloud Scheduler</text>
-                </g>
-                <g class="interactive-group" data-flow="incremental" data-title="Cloud Run" data-desc="Extractor serverless para ingesta de APIs.">
-                    <rect x="590" y="340" width="120" height="120" rx="10" fill="#1e293b"/>
-                    <text x="650" y="440" class="service-title">Cloud Run</text>
-                </g>
-                <g class="interactive-group" data-flow="historical" data-title="DataProc" data-desc="Cluster Spark para carga histórica masiva.">
-                    <rect x="590" y="550" width="120" height="120" rx="10" fill="#1e293b"/>
-                    <text x="650" y="650" class="service-title">DataProc</text>
-                </g>
-                <g class="interactive-group" data-flow="bronze" data-title="BigQuery - Bronze" data-desc="Datos crudos en tablas externas.">
-                    <rect x="840" y="200" width="420" height="100" rx="10" fill="#1e293b"/>
-                    <text x="1050" y="255" class="group-title layer-title-bronze">BRONZE</text>
-                </g>
-                <g class="interactive-group" data-flow="silver" data-title="BigQuery - Silver" data-desc="Datos limpios, normalizados y unificados.">
-                    <rect x="840" y="370" width="420" height="100" rx="10" fill="#1e293b"/>
-                    <text x="1050" y="425" class="group-title layer-title-silver">SILVER</text>
-                </g>
-                <g class="interactive-group" data-flow="gold" data-title="BigQuery - Gold" data-desc="Métricas de negocio y agregados.">
-                    <rect x="840" y="540" width="420" height="100" rx="10" fill="#1e293b"/>
-                    <text x="1050" y="595" class="group-title layer-title-gold">GOLD</text>
-                </g>
-                <g class="interactive-group" data-flow="consumo" data-title="Looker Studio" data-desc="Dashboards de BI para visualización.">
-                    <rect x="1390" y="270" width="120" height="120" rx="10" fill="#1e293b"/>
-                    <text x="1450" y="370" class="service-title">Looker Studio</text>
-                </g>
-                <g class="interactive-group" data-flow="consumo" data-title="Analistas" data-desc="Consumo de datos para modelos y reportes.">
-                    <rect x="1390" y="500" width="120" height="120" rx="10" fill="#1e293b"/>
-                    <text x="1450" y="600" class="service-title">Analistas</text>
+                <!-- Source: Macroeconomics -->
+                <g id="g-source-macro" class="interactive-group" data-title="Fuente: Datos Macroeconómicos" data-desc="Scraper obtiene datos de desempleo, inflación, etc., desde un dashboard público.">
+                    <rect x="40" y="350" width="100" height="100" rx="10" fill="#1e293b" />
+                    <text x="90" y="430" class="service-title">Datos Macro</text>
                 </g>
 
-                <!-- Edges / Flows -->
-                <path class="flow-path" data-flow="fuentes,landing,incremental" d="M210 260 H 340" stroke="var(--clr-landing)" stroke-width="2" marker-end="url(#arrowhead-incremental)"/>
-                <path class="flow-path" data-flow="fuentes,landing,incremental" d="M210 510 H 340" stroke="var(--clr-landing)" stroke-width="2" marker-end="url(#arrowhead-incremental)"/>
-                <path class="flow-path" data-flow="incremental" d="M650 320 V 340" stroke="var(--clr-landing)" stroke-width="2" marker-end="url(#arrowhead-incremental)"/>
-                <path class="flow-path" data-flow="incremental" d="M500 400 H 590" stroke="var(--clr-landing)" stroke-width="2" marker-end="url(#arrowhead-incremental)"/>
-                <path class="flow-path" data-flow="incremental,bronze" d="M710 400 H 840" stroke="var(--clr-landing)" stroke-width="2" marker-end="url(#arrowhead-incremental)"/>
-                <path class="flow-path" data-flow="historical,bronze" d="M710 610 H 840" stroke="var(--clr-bronze)" stroke-width="2" stroke-dasharray="8,6" marker-end="url(#arrowhead-historical)"/>
-                <path class="flow-path" data-flow="silver" d="M1050 300 V 370" stroke="var(--clr-silver)" stroke-width="2" marker-end="url(#arrowhead-incremental)"/>
-                <path class="flow-path" data-flow="gold" d="M1050 470 V 540" stroke="var(--clr-gold)" stroke-width="2" marker-end="url(#arrowhead-incremental)"/>
-                <path class="flow-path" data-flow="consumo" d="M1260 330 H 1390" stroke="var(--clr-silver)" stroke-width="2" marker-end="url(#arrowhead-incremental)"/>
-                <path class="flow-path" data-flow="consumo" d="M1260 595 H 1390" stroke="var(--clr-gold)" stroke-width="2" marker-end="url(#arrowhead-incremental)"/>
-
-                <!-- KPI Panel -->
-                <g id="kpi-panel" class="kpi-panel">
-                    <rect x="1300" y="-1" width="300" height="902" class="glass-panel"/>
-                    <text x="1450" y="160" class="kpi-title">Métricas del Pipeline</text>
-                    <text x="1320" y="220" class="kpi-label">Latencia (Landing a Gold):</text>
-                    <text x="1550" y="220" class="kpi-value ok">&lt; 2 horas</text>
-                    <text x="1320" y="260" class="kpi-label">Uptime del Sistema:</text>
-                    <text x="1550" y="260" class="kpi-value ok">99.9%</text>
-                    <text x="1320" y="300" class="kpi-label">Costo Mensual:</text>
-                    <text x="1550" y="300" class="kpi-value warn">$200-400</text>
-                    <text x="1320" y="340" class="kpi-label">Registros SIMBAD:</text>
-                    <text x="1550" y="340" class="kpi-value">676K+</text>
-                    <text x="1320" y="380" class="kpi-label">Métricas en Gold:</text>
-                    <text x="1550" y="380" class="kpi-value">4,965</text>
-                    <g id="kpi-panel-toggle" class="kpi-panel-toggle">
-                        <rect x="1280" y="420" width="20" height="60" rx="10" fill="var(--clr-panel-border)"/>
-                        <text x="1290" y="455" font-size="20" fill="#e2e8f0" transform="rotate(90, 1290, 455)">KPIs</text>
-                    </g>
+                <!-- Landing: Cloud Storage -->
+                <g id="g-storage" class="interactive-group" data-title="Landing: Cloud Storage" data-desc="Bucket que actúa como Data Lake. Almacena los datos crudos en formato CSV y Parquet.">
+                    <rect x="220" y="250" width="100" height="100" rx="10" fill="#1e293b" />
+                    <text x="270" y="330" class="service-title">Cloud Storage</text>
                 </g>
 
-                <!-- Tooltip -->
-                <g id="svg-tooltip" class="svg-tooltip">
-                    <rect x="0" y="0" width="250" height="90" rx="10" class="glass-panel"/>
-                    <text id="svg-tooltip-title" x="15" y="25" class="svg-tooltip-title"></text>
-                    <text id="svg-tooltip-desc" x="15" y="50" class="svg-tooltip-desc"></text>
-                    <text id="svg-tooltip-cost" x="15" y="75" class="svg-tooltip-cost"></text>
+                <!-- Processing: Scheduler -->
+                <g id="g-scheduler" class="interactive-group" data-title="Trigger: Cloud Scheduler" data-desc="Job programado que se ejecuta diariamente para invocar a Cloud Run y comenzar el pipeline incremental.">
+                    <rect x="400" y="150" width="80" height="80" rx="10" fill="#1e293b" />
+                    <text x="440" y="215" class="service-title">Scheduler</text>
+                </g>
+
+                <!-- Processing: Cloud Run -->
+                <g id="g-cloudrun" class="interactive-group" data-title="Procesamiento: Cloud Run" data-desc="Servicios serverless que extraen datos de las APIs y los depositan en Cloud Storage.">
+                    <rect x="400" y="260" width="80" height="80" rx="10" fill="#1e293b" />
+                    <text x="440" y="325" class="service-title">Cloud Run</text>
+                </g>
+
+                <!-- Processing: DataProc -->
+                <g id="g-dataproc" class="interactive-group" data-title="Procesamiento: DataProc" data-desc="Cluster de Spark para la carga histórica masiva y transformaciones complejas con PySpark.">
+                    <rect x="400" y="450" width="80" height="80" rx="10" fill="#1e293b" />
+                    <text x="440" y="515" class="service-title">DataProc</text>
+                </g>
+
+                <!-- DW: BigQuery -->
+                <g id="g-bigquery" class="interactive-group" data-title="Data Warehouse: BigQuery" data-desc="Almacén de datos serverless donde residen las capas Bronze, Silver y Gold.">
+                    <rect x="580" y="150" width="360" height="400" rx="10" fill="#1e293b" />
+                    <text x="760" y="180" class="service-title">BigQuery</text>
+                    <!-- Bronze Layer -->
+                    <rect x="600" y="200" width="320" height="100" rx="5" fill="#334155" />
+                    <text x="760" y="255" fill="#ca8a04" font-weight="600">BRONZE</text>
+                    <!-- Silver Layer -->
+                    <rect x="600" y="320" width="320" height="100" rx="5" fill="#334155" />
+                    <text x="760" y="375" fill="#a1a1aa" font-weight="600">SILVER</text>
+                    <!-- Gold Layer -->
+                    <rect x="600" y="440" width="320" height="100" rx="5" fill="#334155" />
+                    <text x="760" y="495" fill="#fbbf24" font-weight="600">GOLD</text>
+                </g>
+
+                <!-- Consumers: Looker -->
+                <g id="g-looker" class="interactive-group" data-title="Consumidor: Looker Studio" data-desc="Herramienta de BI para crear dashboards y visualizar las métricas de la capa Gold.">
+                    <rect x="1040" y="200" width="100" height="100" rx="10" fill="#1e293b" />
+                    <text x="1090" y="280" class="service-title">Looker Studio</text>
+                </g>
+
+                <!-- Consumers: Users -->
+                <g id="g-users" class="interactive-group" data-title="Consumidor: Analistas" data-desc="Analistas de datos y negocio que consumen los datos para modelos de riesgo, reportes, etc.">
+                    <rect x="1040" y="400" width="100" height="100" rx="10" fill="#1e293b" />
+                    <text x="1090" y="480" class="service-title">Analistas</text>
+                </g>
+
+                <!-- FLOWS -->
+                <!-- Incremental Flow -->
+                <path class="flow-path" d="M485 190 C 510 190, 510 300, 535 300" stroke="#38bdf8" stroke-width="2" fill="none" />
+                <path class="flow-path" d="M145 200 H 215" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path class="flow-path" d="M145 400 H 215" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path class="flow-path" d="M325 300 H 395" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path class="flow-path" d="M485 300 H 575" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path class="flow-path" d="M925 250 H 975" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path class="flow-path" d="M925 450 H 975" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path class="flow-path" d="M945 250 C 965 250, 965 250, 985 250" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path class="flow-path" d="M945 450 C 965 450, 965 450, 985 450" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+
+                <!-- Historical Flow -->
+                <path class="flow-path" d="M325 490 H 395" stroke="#f97316" stroke-width="2" stroke-dasharray="5,5" fill="none" marker-end="url(#arrowhead-orange)"/>
+                <path class="flow-path" d="M485 490 H 575" stroke="#f97316" stroke-width="2" stroke-dasharray="5,5" fill="none" marker-end="url(#arrowhead-orange)"/>
+
+                <!-- BQ Internal Flow -->
+                <path class="flow-path" d="M760 305 V 315" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path class="flow-path" d="M760 425 V 435" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+
+                <!-- Info Box -->
+                <g id="info-box" class="info-box" style="opacity: 0; pointer-events: none;">
+                    <rect id="info-rect" x="0" y="0" width="300" height="80" rx="10" fill="#1e293b" stroke="#38bdf8" />
+                    <text id="info-title" x="10" y="25" class="info-title"></text>
+                    <foreignObject id="info-desc-foreign" x="10" y="40" width="280" height="40">
+                        <p id="info-desc" xmlns="http://www.w3.org/1999/xhtml" class="info-text"></p>
+                    </foreignObject>
                 </g>
             </svg>
         </div>
