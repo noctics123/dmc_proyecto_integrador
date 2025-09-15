@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMC - Pipeline de Datos Integral</title>
+    <meta name="description" content="Sistema completo de análisis de créditos hipotecarios SIMBAD e indicadores macroeconómicos usando arquitectura lakehouse híbrida en Google Cloud Platform.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="docs/assets/images/logo.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="docs/assets/css/styles.css">
+
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Animate on scroll -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <img src="docs/assets/images/logo.svg" alt="DMC Logo" class="nav-logo">
+                <span class="nav-title">DMC Pipeline</span>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link active">Inicio</a>
+                <a href="#architecture" class="nav-link">Arquitectura</a>
+                <a href="#services" class="nav-link">Servicios</a>
+                <a href="#components" class="nav-link">Componentes</a>
+                <a href="#metrics" class="nav-link">Métricas</a>
+                <a href="#docs" class="nav-link">Documentación</a>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-background">
+            <div class="hero-particles"></div>
+        </div>
+        <div class="container">
+            <div class="hero-content" data-aos="fade-up">
+                <h1 class="hero-title">
+                    Pipeline de Datos <span class="gradient-text">Integral</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Sistema completo de análisis de créditos hipotecarios SIMBAD e indicadores
+                    macroeconómicos usando arquitectura lakehouse híbrida en Google Cloud Platform
+                </p>
+                <div class="hero-badges">
+                    <span class="badge">🏛️ SIMBAD</span>
+                    <span class="badge">📊 BigQuery</span>
+                    <span class="badge">⚡ DataProc</span>
+                    <span class="badge">🔄 Automatizado</span>
+                </div>
+                <div class="hero-actions">
+                    <a href="#architecture" class="btn btn-primary">
+                        <i data-lucide="play"></i>
+                        Ver Arquitectura
+                    </a>
+                    <a href="https://github.com/noctics123/dmc_proyecto_integrador" class="btn btn-secondary" target="_blank">
+                        <i data-lucide="github"></i>
+                        GitHub
+                    </a>
+                </div>
+            </div>
+            <div class="hero-visual" data-aos="fade-left" data-aos-delay="200">
+                <div class="data-flow-animation">
+                    <div class="flow-node landing">Landing</div>
+                    <div class="flow-arrow"></div>
+                    <div class="flow-node bronze">Bronze</div>
+                    <div class="flow-arrow"></div>
+                    <div class="flow-node silver">Silver</div>
+                    <div class="flow-arrow"></div>
+                    <div class="flow-node gold">Gold</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Overview -->
+    <section id="architecture" class="architecture">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Arquitectura Híbrida</h2>
+                <p class="section-subtitle">
+                    Pipeline completo con DataProc para carga histórica y BigQuery para procesamiento incremental
+                </p>
+            </div>
+
+            <div class="architecture-diagram" data-aos="zoom-in" data-aos-delay="200">
+                <div class="layer landing-layer">
+                    <h3>Landing Layer</h3>
+                    <div class="layer-services">
+                        <div class="service-card">
+                            <i data-lucide="cloud"></i>
+                            <span>Cloud Storage</span>
+                        </div>
+                        <div class="service-card">
+                            <i data-lucide="server"></i>
+                            <span>Cloud Run</span>
+                        </div>
+                        <div class="service-card">
+                            <i data-lucide="clock"></i>
+                            <span>Scheduler</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layer bronze-layer">
+                    <h3>Bronze Layer</h3>
+                    <div class="layer-services">
+                        <div class="service-card">
+                            <i data-lucide="cpu"></i>
+                            <span>DataProc</span>
+                        </div>
+                        <div class="service-card">
+                            <i data-lucide="database"></i>
+                            <span>External Tables</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layer silver-layer">
+                    <h3>Silver Layer</h3>
+                    <div class="layer-services">
+                        <div class="service-card">
+                            <i data-lucide="trending-up"></i>
+                            <span>BigQuery</span>
+                        </div>
+                        <div class="service-card">
+                            <i data-lucide="settings"></i>
+                            <span>Stored Procedures</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layer gold-layer">
+                    <h3>Gold Layer</h3>
+                    <div class="layer-services">
+                        <div class="service-card">
+                            <i data-lucide="bar-chart"></i>
+                            <span>Métricas</span>
+                        </div>
+                        <div class="service-card">
+                            <i data-lucide="alert-triangle"></i>
+                            <span>Alertas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services by Layer -->
+    <section id="services" class="services">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Servicios por Capa</h2>
+                <p class="section-subtitle">
+                    Detalle completo de tecnologías y configuraciones por cada layer del lakehouse
+                </p>
+            </div>
+
+            <div class="services-tabs">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" data-tab="landing">Landing</button>
+                    <button class="tab-btn" data-tab="bronze">Bronze</button>
+                    <button class="tab-btn" data-tab="silver">Silver</button>
+                    <button class="tab-btn" data-tab="gold">Gold</button>
+                </div>
+
+                <div class="tab-content active" id="landing-tab">
+                    <div class="service-grid">
+                        <div class="service-detail-card" data-aos="fade-up">
+                            <div class="service-icon">
+                                <i data-lucide="cloud"></i>
+                            </div>
+                            <h3>Cloud Storage</h3>
+                            <p>Almacenamiento CSV raw con retention de 30 días</p>
+                            <div class="service-specs">
+                                <span class="spec">Bucket: dae-integrador-2025</span>
+                                <span class="spec">Estructura: /lakehouse/landing/</span>
+                                <span class="spec">Formato: CSV particionado por dt=</span>
+                            </div>
+                        </div>
+
+                        <div class="service-detail-card" data-aos="fade-up" data-aos-delay="100">
+                            <div class="service-icon">
+                                <i data-lucide="server"></i>
+                            </div>
+                            <h3>Cloud Run</h3>
+                            <p>SIMBAD API harvester con trigger automático</p>
+                            <div class="service-specs">
+                                <span class="spec">Servicios: 7 activos</span>
+                                <span class="spec">Region: us-central1</span>
+                                <span class="spec">Trigger: HTTP automático</span>
+                            </div>
+                        </div>
+
+                        <div class="service-detail-card" data-aos="fade-up" data-aos-delay="200">
+                            <div class="service-icon">
+                                <i data-lucide="clock"></i>
+                            </div>
+                            <h3>Cloud Scheduler</h3>
+                            <p>Automatización de cargas diarias</p>
+                            <div class="service-specs">
+                                <span class="spec">Schedule: 5:00 AM diario</span>
+                                <span class="spec">Jobs: SIMBAD + Macro</span>
+                                <span class="spec">Timezone: America/Lima</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="bronze-tab">
+                    <div class="service-grid">
+                        <div class="service-detail-card" data-aos="fade-up">
+                            <div class="service-icon">
+                                <i data-lucide="cpu"></i>
+                            </div>
+                            <h3>DataProc</h3>
+                            <p>Cluster PySpark para carga histórica completa</p>
+                            <div class="service-specs">
+                                <span class="spec">Cluster: cluster-integrador-2025</span>
+                                <span class="spec">Workers: 4 instancias</span>
+                                <span class="spec">Status: RUNNING</span>
+                            </div>
+                        </div>
+
+                        <div class="service-detail-card" data-aos="fade-up" data-aos-delay="100">
+                            <div class="service-icon">
+                                <i data-lucide="database"></i>
+                            </div>
+                            <h3>External Tables</h3>
+                            <p>Acceso directo a Parquet desde BigQuery</p>
+                            <div class="service-specs">
+                                <span class="spec">Tables: 4 datasets</span>
+                                <span class="spec">Format: Parquet optimizado</span>
+                                <span class="spec">Detection: Wildcard automático</span>
+                            </div>
+                        </div>
+
+                        <div class="service-detail-card" data-aos="fade-up" data-aos-delay="200">
+                            <div class="service-icon">
+                                <i data-lucide="file-text"></i>
+                            </div>
+                            <h3>Notebooks</h3>
+                            <p>Jupyter notebooks para transformaciones</p>
+                            <div class="service-specs">
+                                <span class="spec">Count: 4 notebooks</span>
+                                <span class="spec">SIMBAD: 676K+ registros</span>
+                                <span class="spec">Macro: 3 datasets</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="silver-tab">
+                    <div class="service-grid">
+                        <div class="service-detail-card" data-aos="fade-up">
+                            <div class="service-icon">
+                                <i data-lucide="trending-up"></i>
+                            </div>
+                            <h3>BigQuery</h3>
+                            <p>Procesamiento y almacenamiento optimizado</p>
+                            <div class="service-specs">
+                                <span class="spec">Dataset: silver_clean</span>
+                                <span class="spec">Clustering: entidad, tipoCliente</span>
+                                <span class="spec">Records: 110K procesados</span>
+                            </div>
+                        </div>
+
+                        <div class="service-detail-card" data-aos="fade-up" data-aos-delay="100">
+                            <div class="service-icon">
+                                <i data-lucide="settings"></i>
+                            </div>
+                            <h3>Stored Procedures</h3>
+                            <p>Lógica de transformación automatizada</p>
+                            <div class="service-specs">
+                                <span class="spec">Procedures: 4 con prefijo sp_</span>
+                                <span class="spec">Mode: Incremental optimizado</span>
+                                <span class="spec">Error: Exception handling</span>
+                            </div>
+                        </div>
+
+                        <div class="service-detail-card" data-aos="fade-up" data-aos-delay="200">
+                            <div class="service-icon">
+                                <i data-lucide="filter"></i>
+                            </div>
+                            <h3>Data Cleaning</h3>
+                            <p>Deduplicación y validación automática</p>
+                            <div class="service-specs">
+                                <span class="spec">Quality: Flags automáticos</span>
+                                <span class="spec">Dedup: ROW_NUMBER() window</span>
+                                <span class="spec">Validation: SAFE_CAST parsing</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="gold-tab">
+                    <div class="service-grid">
+                        <div class="service-detail-card" data-aos="fade-up">
+                            <div class="service-icon">
+                                <i data-lucide="bar-chart"></i>
+                            </div>
+                            <h3>Métricas</h3>
+                            <p>KPIs agregados con datos macroeconómicos</p>
+                            <div class="service-specs">
+                                <span class="spec">Records: 4,965 métricas</span>
+                                <span class="spec">Period: 2012-2025</span>
+                                <span class="spec">Partition: Temporal por mes</span>
+                            </div>
+                        </div>
+
+                        <div class="service-detail-card" data-aos="fade-up" data-aos-delay="100">
+                            <div class="service-icon">
+                                <i data-lucide="alert-triangle"></i>
+                            </div>
+                            <h3>Alertas</h3>
+                            <p>Sistema de detección automática de riesgos</p>
+                            <div class="service-specs">
+                                <span class="spec">Tables: alertas_provincia_12m</span>
+                                <span class="spec">Levels: ALTO, MEDIO, BAJO</span>
+                                <span class="spec">Schedule: 8:00 AM diario</span>
+                            </div>
+                        </div>
+
+                        <div class="service-detail-card" data-aos="fade-up" data-aos-delay="200">
+                            <div class="service-icon">
+                                <i data-lucide="monitor"></i>
+                            </div>
+                            <h3>Visualization</h3>
+                            <p>Dashboards ejecutivos en Looker Studio</p>
+                            <div class="service-specs">
+                                <span class="spec">Platform: Looker Studio</span>
+                                <span class="spec">Connection: BigQuery directo</span>
+                                <span class="spec">Refresh: Tiempo real</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Components Showcase -->
+    <section id="components" class="components">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Componentes Técnicos</h2>
+                <p class="section-subtitle">
+                    Notebooks, stored procedures y scripts que conforman el pipeline de datos
+                </p>
+            </div>
+
+            <div class="components-grid">
+                <div class="component-category" data-aos="fade-up">
+                    <h3>📔 Notebooks DataProc</h3>
+                    <div class="component-list">
+                        <div class="component-item">
+                            <i data-lucide="file"></i>
+                            <div>
+                                <strong>bronze_simbad_ingestion.ipynb</strong>
+                                <span>Landing → Bronze SIMBAD (676K registros)</span>
+                            </div>
+                        </div>
+                        <div class="component-item">
+                            <i data-lucide="file"></i>
+                            <div>
+                                <strong>bronze_macroeconomics_ingestion.ipynb</strong>
+                                <span>Landing → Bronze Macroeconomía (3 datasets)</span>
+                            </div>
+                        </div>
+                        <div class="component-item">
+                            <i data-lucide="file"></i>
+                            <div>
+                                <strong>silver_data_cleaning.ipynb</strong>
+                                <span>Bronze → Silver (limpieza y normalización)</span>
+                            </div>
+                        </div>
+                        <div class="component-item">
+                            <i data-lucide="file"></i>
+                            <div>
+                                <strong>gold_metrics_aggregation.ipynb</strong>
+                                <span>Silver → Gold (métricas de negocio)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-category" data-aos="fade-up" data-aos-delay="100">
+                    <h3>⚙️ Stored Procedures</h3>
+                    <div class="component-list">
+                        <div class="component-item">
+                            <i data-lucide="database"></i>
+                            <div>
+                                <strong>sp_process_landing_to_silver_incremental</strong>
+                                <span>Procesamiento incremental optimizado</span>
+                            </div>
+                        </div>
+                        <div class="component-item">
+                            <i data-lucide="database"></i>
+                            <div>
+                                <strong>sp_process_bronze_to_silver</strong>
+                                <span>Transformación bronze a silver</span>
+                            </div>
+                        </div>
+                        <div class="component-item">
+                            <i data-lucide="database"></i>
+                            <div>
+                                <strong>sp_process_silver_to_gold</strong>
+                                <span>Agregaciones y métricas de negocio</span>
+                            </div>
+                        </div>
+                        <div class="component-item">
+                            <i data-lucide="database"></i>
+                            <div>
+                                <strong>sp_full_pipeline_refresh</strong>
+                                <span>Orquestador completo del pipeline</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-category" data-aos="fade-up" data-aos-delay="200">
+                    <h3>🔄 Extractores Landing</h3>
+                    <div class="component-list">
+                        <div class="component-item">
+                            <i data-lucide="download"></i>
+                            <div>
+                                <strong>SIMBAD Harvester</strong>
+                                <span>Extractor API superintendencia de bancos</span>
+                            </div>
+                        </div>
+                        <div class="component-item">
+                            <i data-lucide="download"></i>
+                            <div>
+                                <strong>Macroeconomics Scraper</strong>
+                                <span>PowerBI data extraction automático</span>
+                            </div>
+                        </div>
+                        <div class="component-item">
+                            <i data-lucide="download"></i>
+                            <div>
+                                <strong>Incremental Loader</strong>
+                                <span>Carga inteligente solo datos nuevos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Metrics Dashboard -->
+    <section id="metrics" class="metrics">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Métricas del Pipeline</h2>
+                <p class="section-subtitle">
+                    Estado actual del sistema y KPIs de rendimiento
+                </p>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card" data-aos="fade-up">
+                    <div class="metric-icon">
+                        <i data-lucide="database"></i>
+                    </div>
+                    <div class="metric-value">676K+</div>
+                    <div class="metric-label">Registros SIMBAD</div>
+                    <div class="metric-trend positive">
+                        <i data-lucide="trending-up"></i>
+                        <span>2012-presente</span>
+                    </div>
+                </div>
+
+                <div class="metric-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="metric-icon">
+                        <i data-lucide="layers"></i>
+                    </div>
+                    <div class="metric-value">4,965</div>
+                    <div class="metric-label">Métricas Gold</div>
+                    <div class="metric-trend positive">
+                        <i data-lucide="trending-up"></i>
+                        <span>Por provincia/período</span>
+                    </div>
+                </div>
+
+                <div class="metric-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="metric-icon">
+                        <i data-lucide="clock"></i>
+                    </div>
+                    <div class="metric-value">&lt; 2h</div>
+                    <div class="metric-label">Latencia Pipeline</div>
+                    <div class="metric-trend positive">
+                        <i data-lucide="trending-up"></i>
+                        <span>Landing → Gold</span>
+                    </div>
+                </div>
+
+                <div class="metric-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="metric-icon">
+                        <i data-lucide="check-circle"></i>
+                    </div>
+                    <div class="metric-value">99.9%</div>
+                    <div class="metric-label">Disponibilidad</div>
+                    <div class="metric-trend positive">
+                        <i data-lucide="trending-up"></i>
+                        <span>Uptime del sistema</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container" data-aos="fade-up" data-aos-delay="400">
+                <canvas id="pipelineChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation -->
+    <section id="docs" class="documentation">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Documentación</h2>
+                <p class="section-subtitle">
+                    Guías técnicas y recursos para desarrolladores
+                </p>
+            </div>
+
+            <div class="docs-grid">
+                <a href="ARCHITECTURE.md" class="doc-card" data-aos="fade-up" target="_blank">
+                    <div class="doc-icon">
+                        <i data-lucide="file-text"></i>
+                    </div>
+                    <h3>ARCHITECTURE.md</h3>
+                    <p>Documentación técnica completa de la arquitectura híbrida</p>
+                    <div class="doc-meta">
+                        <span>📊 Servicios por capa</span>
+                        <span>🔄 CI/CD Pipeline</span>
+                        <span>⏰ Scheduling</span>
+                    </div>
+                </a>
+
+                <a href="bigquery_processing/README.md" class="doc-card" data-aos="fade-up" data-aos-delay="100" target="_blank">
+                    <div class="doc-icon">
+                        <i data-lucide="database"></i>
+                    </div>
+                    <h3>BigQuery Processing</h3>
+                    <p>Pipeline SQL BigQuery con stored procedures automatizados</p>
+                    <div class="doc-meta">
+                        <span>📝 Stored Procedures</span>
+                        <span>🔄 Incremental Loading</span>
+                        <span>📊 Métricas</span>
+                    </div>
+                </a>
+
+                <a href="lakehouse_processing/README.md" class="doc-card" data-aos="fade-up" data-aos-delay="200" target="_blank">
+                    <div class="doc-icon">
+                        <i data-lucide="cpu"></i>
+                    </div>
+                    <h3>DataProc Processing</h3>
+                    <p>Notebooks Jupyter para procesamiento distribuido con PySpark</p>
+                    <div class="doc-meta">
+                        <span>📔 Notebooks</span>
+                        <span>⚡ PySpark</span>
+                        <span>🏗️ Bronze Layer</span>
+                    </div>
+                </a>
+
+                <a href="https://github.com/noctics123/dmc_proyecto_integrador" class="doc-card" data-aos="fade-up" data-aos-delay="300" target="_blank">
+                    <div class="doc-icon">
+                        <i data-lucide="github"></i>
+                    </div>
+                    <h3>Repositorio GitHub</h3>
+                    <p>Código completo del proyecto con historial de commits</p>
+                    <div class="doc-meta">
+                        <span>💻 Source Code</span>
+                        <span>📋 Issues</span>
+                        <span>🔄 CI/CD</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>DMC Pipeline</h3>
+                    <p>Sistema integral de análisis de riesgo crediticio para República Dominicana</p>
+                    <div class="footer-badges">
+                        <img src="https://img.shields.io/badge/Google%20Cloud-4285F4?style=flat&logo=google-cloud&logoColor=white" alt="GCP">
+                        <img src="https://img.shields.io/badge/BigQuery-4285F4?style=flat&logo=google-cloud&logoColor=white" alt="BigQuery">
+                        <img src="https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white" alt="Python">
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Tecnologías</h4>
+                    <ul>
+                        <li>Google Cloud Platform</li>
+                        <li>BigQuery & DataProc</li>
+                        <li>Python & PySpark</li>
+                        <li>Cloud Run & Scheduler</li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Recursos</h4>
+                    <ul>
+                        <li><a href="ARCHITECTURE.md">Documentación</a></li>
+                        <li><a href="https://github.com/noctics123/dmc_proyecto_integrador">GitHub</a></li>
+                        <li><a href="#metrics">Métricas</a></li>
+                        <li><a href="#components">Componentes</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Estado del Sistema</h4>
+                    <div class="status-indicators">
+                        <div class="status-item">
+                            <div class="status-dot online"></div>
+                            <span>Pipeline Activo</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-dot online"></div>
+                            <span>BigQuery Operativo</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-dot online"></div>
+                            <span>DataProc Running</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 DMC Pipeline - Proyecto Integrador. Pipeline robusto, escalable y automatizado.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="docs/assets/js/main.js"></script>
+</body>
+</html>

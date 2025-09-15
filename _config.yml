@@ -1,0 +1,76 @@
+# GitHub Pages Configuration for DMC Pipeline
+title: DMC Pipeline - Sistema Integral de Análisis de Datos
+description: Pipeline completo de análisis de créditos hipotecarios SIMBAD e indicadores macroeconómicos usando arquitectura lakehouse híbrida en Google Cloud Platform.
+
+# GitHub Pages settings
+remote_theme: jekyll/minima
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Site settings
+url: "https://noctics123.github.io"
+baseurl: "/dmc_proyecto_integrador"
+lang: es
+
+# SEO settings
+author:
+  name: DMC Team
+  email: contact@dmc-pipeline.com
+
+social:
+  name: DMC Pipeline
+  links:
+    - https://github.com/noctics123/dmc_proyecto_integrador
+
+# GitHub Pages deployment
+source: .
+destination: ./_site
+
+# Exclude files from processing
+exclude:
+  - README.md
+  - ARCHITECTURE.md
+  - lakehouse_processing/
+  - bigquery_processing/
+  - landing/
+  - web_app/
+  - .git/
+  - .gitignore
+  - node_modules/
+  - "*.py"
+  - "*.sql"
+  - "*.yaml"
+  - "*.yml"
+  - "*.ipynb"
+
+# Include files that start with underscore
+include:
+  - _config.yml
+
+# Markdown processing
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  hard_wrap: false
+
+# Collections (if needed for documentation)
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:name/
+
+# Default front matter
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
