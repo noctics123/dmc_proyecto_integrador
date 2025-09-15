@@ -248,6 +248,15 @@
                     </g>
                 </svg>
             </div>
+
+            <div class="text-center mt-8">
+                <button id="expand-arch-btn" class="btn btn-secondary">
+                    <i data-lucide="maximize"></i>
+                    Expandir Diagrama Interactivo
+                </button>
+            </div>
+        </div>
+    </section>
         </div>
     </section>
 
@@ -413,7 +422,7 @@
 
             <div class="tech-grid">
                 <div class="tech-card" data-aos="fade-up">
-                    <img src="https://storage.googleapis.com/cloud-www-dev-media/images/products/icons/product-icon-google-cloud.svg" alt="Google Cloud Logo" class="tech-card-logo">
+                    <svg class="tech-card-logo" viewBox="0 0 64 64"><path d="M49.8,33.2c-1.2-8-8-14-16.2-14c-6.3,0-11.8,3.5-14.6,8.6c-0.7-0.2-1.4-0.3-2.1-0.3c-5.5,0-10,4.5-10,10s4.5,10,10,10h32 c6.6,0,12-5.4,12-12C61.8,39.1,56.5,33.8,49.8,33.2z" fill="#4285F4"/></svg>
                     <h3>Google Cloud Platform</h3>
                     <p class="tech-reason">Ecosistema integrado, escalabilidad automática y costos predecibles.</p>
                     <div class="tech-benefits">
@@ -424,7 +433,7 @@
                 </div>
 
                 <div class="tech-card" data-aos="fade-up" data-aos-delay="100">
-                    <img src="https://storage.googleapis.com/cloud-www-dev-media/images/products/icons/product-icon-bigquery.svg" alt="BigQuery Logo" class="tech-card-logo">
+                    <svg class="tech-card-logo" viewBox="0 0 64 64"><path d="M32,12 C42,12 42,20 32,20 C22,20 22,12 32,12 Z" fill="#4285F4"/><path d="M22,20 v24 C22,50 42,50 42,44 V20" fill="#4285F4" opacity="0.6"/><path d="M22,20 C22,10 42,10 42,20" fill="#4285F4"/><text x="32" y="38" font-family="Verdana" font-size="12" fill="white" text-anchor="middle">SQL</text></svg>
                     <h3>BigQuery</h3>
                     <p class="tech-reason">Data warehouse serverless con procesamiento SQL optimizado y escalable.</p>
                     <div class="tech-benefits">
@@ -435,7 +444,7 @@
                 </div>
 
                 <div class="tech-card" data-aos="fade-up" data-aos-delay="200">
-                    <img src="https://storage.googleapis.com/cloud-www-dev-media/images/products/icons/product-icon-dataproc.svg" alt="DataProc Logo" class="tech-card-logo">
+                    <svg class="tech-card-logo" viewBox="0 0 64 64"><circle cx="32" cy="22" r="6" fill="#4285F4"/><circle cx="22" cy="36" r="6" fill="#4285F4"/><circle cx="42" cy="36" r="6" fill="#4285F4"/><path d="M32 28 l-10 8" stroke="#4285F4" stroke-width="2"/><path d="M32 28 l10 8" stroke="#4285F4" stroke-width="2"/></svg>
                     <h3>DataProc</h3>
                     <p class="tech-reason">Procesamiento distribuido para cargas históricas masivas con PySpark.</p>
                     <div class="tech-benefits">
@@ -446,7 +455,7 @@
                 </div>
 
                 <div class="tech-card" data-aos="fade-up" data-aos-delay="300">
-                    <img src="https://storage.googleapis.com/cloud-www-dev-media/images/products/icons/product-icon-cloud-run.svg" alt="Cloud Run Logo" class="tech-card-logo">
+                    <svg class="tech-card-logo" viewBox="0 0 64 64"><path d="M12,20 L52,20 L56,32 L16,32 Z" fill="#4285F4" /><path d="M16,32 L56,32 L52,44 L12,44 Z" fill="#4285F4" opacity="0.6"/><path d="M8,18 L12,20" stroke="#4285F4" stroke-width="2"/><path d="M4,26 L8,28" stroke="#4285F4" stroke-width="2"/><path d="M8,34 L12,36" stroke="#4285F4" stroke-width="2"/></svg>
                     <h3>Cloud Run</h3>
                     <p class="tech-reason">Contenedores serverless para la ingesta de datos vía triggers HTTP.</p>
                     <div class="tech-benefits">
@@ -966,6 +975,141 @@
             </div>
         </div>
     </footer>
+
+    <!-- Architecture Modal -->
+    <div id="arch-modal" class="arch-modal">
+        <span id="arch-modal-close" class="arch-modal-close">&times;</span>
+        <div class="arch-modal-content">
+            <svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <style>
+                        .bg-rect { fill: #0f172a; }
+                        .title-text { font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 600; fill: #e2e8f0; text-anchor: middle; }
+                        .subtitle-text { font-family: 'Inter', sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+                        .group-title { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 500; fill: #cbd5e1; text-anchor: middle; }
+                        .service-title { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; fill: #94a3b8; text-anchor: middle; }
+                        .service-desc { font-family: 'Inter', sans-serif; font-size: 12px; fill: #64748b; text-anchor: middle; }
+                        .info-box { transition: opacity 0.2s ease-in-out; }
+                        .info-text { font-family: 'Inter', sans-serif; font-size: 13px; fill: #e2e8f0; }
+                        .info-title { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; fill: #f1f5f9; }
+                        .interactive-group { cursor: pointer; transition: all 0.2s ease-in-out; }
+                        .interactive-group:hover { filter: drop-shadow(0px 0px 10px #38bdf8); transform: translateY(-5px); }
+                    </style>
+                    <marker id="arrowhead-blue" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#38bdf8" /></marker>
+                    <marker id="arrowhead-orange" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#f97316" /></marker>
+                </defs>
+
+                <rect width="1200" height="700" rx="20" class="bg-rect" />
+
+                <text x="600" y="40" class="title-text">Arquitectura Detallada del Pipeline de Datos</text>
+                <text x="600" y="65" class="subtitle-text">Diagrama interactivo de los componentes y flujos de datos</text>
+
+                <!-- SECTIONS -->
+                <line x1="180" y1="90" x2="180" y2="650" stroke="#334155" />
+                <line x1="360" y1="90" x2="360" y2="650" stroke="#334155" />
+                <line x1="540" y1="90" x2="540" y2="650" stroke="#334155" />
+                <line x1="980" y1="90" x2="980" y2="650" stroke="#334155" />
+                <text x="90" y="110" class="group-title">Fuentes</text>
+                <text x="270" y="110" class="group-title">Landing</text>
+                <text x="450" y="110" class="group-title">Procesamiento</text>
+                <text x="760" y="110" class="group-title">Data Warehouse</text>
+                <text x="1090" y1="110" class="group-title">Consumidores</text>
+
+                <!-- COMPONENTS -->
+                <!-- Source: SIMBAD API -->
+                <g id="g-source-simbad" class="interactive-group" data-title="Fuente: API SIMBAD" data-desc="API de la Superintendencia de Bancos que provee datos de créditos hipotecarios.">
+                    <rect x="40" y="150" width="100" height="100" rx="10" fill="#1e293b" />
+                    <text x="90" y="230" class="service-title">API SIMBAD</text>
+                </g>
+
+                <!-- Source: Macroeconomics -->
+                <g id="g-source-macro" class="interactive-group" data-title="Fuente: Datos Macroeconómicos" data-desc="Scraper obtiene datos de desempleo, inflación, etc., desde un dashboard público.">
+                    <rect x="40" y="350" width="100" height="100" rx="10" fill="#1e293b" />
+                    <text x="90" y="430" class="service-title">Datos Macro</text>
+                </g>
+
+                <!-- Landing: Cloud Storage -->
+                <g id="g-storage" class="interactive-group" data-title="Landing: Cloud Storage" data-desc="Bucket que actúa como Data Lake. Almacena los datos crudos en formato CSV y Parquet.">
+                    <rect x="220" y="250" width="100" height="100" rx="10" fill="#1e293b" />
+                    <text x="270" y="330" class="service-title">Cloud Storage</text>
+                </g>
+
+                <!-- Processing: Scheduler -->
+                <g id="g-scheduler" class="interactive-group" data-title="Trigger: Cloud Scheduler" data-desc="Job programado que se ejecuta diariamente para invocar a Cloud Run y comenzar el pipeline incremental.">
+                    <rect x="400" y="150" width="80" height="80" rx="10" fill="#1e293b" />
+                    <text x="440" y="215" class="service-title">Scheduler</text>
+                </g>
+
+                <!-- Processing: Cloud Run -->
+                <g id="g-cloudrun" class="interactive-group" data-title="Procesamiento: Cloud Run" data-desc="Servicios serverless que extraen datos de las APIs y los depositan en Cloud Storage.">
+                    <rect x="400" y="260" width="80" height="80" rx="10" fill="#1e293b" />
+                    <text x="440" y="325" class="service-title">Cloud Run</text>
+                </g>
+
+                <!-- Processing: DataProc -->
+                <g id="g-dataproc" class="interactive-group" data-title="Procesamiento: DataProc" data-desc="Cluster de Spark para la carga histórica masiva y transformaciones complejas con PySpark.">
+                    <rect x="400" y="450" width="80" height="80" rx="10" fill="#1e293b" />
+                    <text x="440" y="515" class="service-title">DataProc</text>
+                </g>
+
+                <!-- DW: BigQuery -->
+                <g id="g-bigquery" class="interactive-group" data-title="Data Warehouse: BigQuery" data-desc="Almacén de datos serverless donde residen las capas Bronze, Silver y Gold.">
+                    <rect x="580" y="150" width="360" height="400" rx="10" fill="#1e293b" />
+                    <text x="760" y="180" class="service-title">BigQuery</text>
+                    <!-- Bronze Layer -->
+                    <rect x="600" y="200" width="320" height="100" rx="5" fill="#334155" />
+                    <text x="760" y="255" fill="#ca8a04" font-weight="600">BRONZE</text>
+                    <!-- Silver Layer -->
+                    <rect x="600" y="320" width="320" height="100" rx="5" fill="#334155" />
+                    <text x="760" y="375" fill="#a1a1aa" font-weight="600">SILVER</text>
+                    <!-- Gold Layer -->
+                    <rect x="600" y="440" width="320" height="100" rx="5" fill="#334155" />
+                    <text x="760" y="495" fill="#fbbf24" font-weight="600">GOLD</text>
+                </g>
+
+                <!-- Consumers: Looker -->
+                <g id="g-looker" class="interactive-group" data-title="Consumidor: Looker Studio" data-desc="Herramienta de BI para crear dashboards y visualizar las métricas de la capa Gold.">
+                    <rect x="1040" y="200" width="100" height="100" rx="10" fill="#1e293b" />
+                    <text x="1090" y="280" class="service-title">Looker Studio</text>
+                </g>
+
+                <!-- Consumers: Users -->
+                <g id="g-users" class="interactive-group" data-title="Consumidor: Analistas" data-desc="Analistas de datos y negocio que consumen los datos para modelos de riesgo, reportes, etc.">
+                    <rect x="1040" y="400" width="100" height="100" rx="10" fill="#1e293b" />
+                    <text x="1090" y="480" class="service-title">Analistas</text>
+                </g>
+
+                <!-- FLOWS -->
+                <!-- Incremental Flow -->
+                <path d="M485 190 C 510 190, 510 300, 535 300" stroke="#38bdf8" stroke-width="2" fill="none" />
+                <path d="M145 200 H 215" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path d="M145 400 H 215" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path d="M325 300 H 395" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path d="M485 300 H 575" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path d="M925 250 H 975" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path d="M925 450 H 975" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path d="M945 250 C 965 250, 965 250, 985 250" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path d="M945 450 C 965 450, 965 450, 985 450" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+
+                <!-- Historical Flow -->
+                <path d="M325 490 H 395" stroke="#f97316" stroke-width="2" stroke-dasharray="5,5" fill="none" marker-end="url(#arrowhead-orange)"/>
+                <path d="M485 490 H 575" stroke="#f97316" stroke-width="2" stroke-dasharray="5,5" fill="none" marker-end="url(#arrowhead-orange)"/>
+
+                <!-- BQ Internal Flow -->
+                <path d="M760 305 V 315" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+                <path d="M760 425 V 435" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrowhead-blue)"/>
+
+                <!-- Info Box -->
+                <g id="info-box" class="info-box" style="opacity: 0; pointer-events: none;">
+                    <rect id="info-rect" x="0" y="0" width="300" height="80" rx="10" fill="#1e293b" stroke="#38bdf8" />
+                    <text id="info-title" x="10" y="25" class="info-title"></text>
+                    <foreignObject id="info-desc-foreign" x="10" y="40" width="280" height="40">
+                        <p id="info-desc" xmlns="http://www.w3.org/1999/xhtml" class="info-text"></p>
+                    </foreignObject>
+                </g>
+            </svg>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>

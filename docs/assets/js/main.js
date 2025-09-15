@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initChart();
     initScrollEffects();
     initFAQs();
+    initArchModal();
 
     // Initialize Lucide icons
     if (typeof lucide !== 'undefined') {
@@ -491,6 +492,75 @@ function initFAQs() {
                 item.classList.toggle('active');
             });
         }
+    });
+}
+
+// ========================================
+// Architecture Modal
+// ========================================
+function initArchModal() {
+    const modal = document.getElementById('arch-modal');
+    const btn = document.getElementById('expand-arch-btn');
+    const span = document.getElementById('arch-modal-close');
+
+    if (!modal || !btn || !span) return;
+
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    // SVG Interactivity
+    const svg = modal.querySelector('svg');
+    if (!svg) return;
+
+    const infoBox = svg.getElementById('info-box');
+    const infoTitle = svg.getElementById('info-title');
+    const infoDescForeign = svg.getElementById('info-desc-foreign');
+    const infoDesc = document.getElementById('info-desc');
+
+    if (!infoBox || !infoTitle || !infoDesc) return;
+
+    svg.querySelectorAll('.interactive-group').forEach(group => {
+        group.addEventListener('mousemove', (e) => {
+            const title = group.getAttribute('data-title');
+            const desc = group.getAttribute('data-desc');
+
+            infoTitle.textContent = title;
+            infoDesc.innerHTML = desc;
+
+            const pt = svg.createSVGPoint();
+            pt.x = e.clientX;
+            pt.y = e.clientY;
+            const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+            let newX = svgP.x + 20;
+            let newY = svgP.y - 10;
+
+            // Prevent tooltip from going off-screen
+            if ((newX + 300) > 1200) { // 300 is the width of the info box
+                newX = svgP.x - 320;
+            }
+            if ((newY + 80) > 700) { // 80 is the height of the info box
+                newY = svgP.y - 90;
+            }
+
+            infoBox.setAttribute('transform', `translate(${newX}, ${newY})`);
+            infoBox.style.opacity = '1';
+        });
+
+        group.addEventListener('mouseleave', () => {
+            infoBox.style.opacity = '0';
+        });
     });
 }
 
