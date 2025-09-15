@@ -17,7 +17,9 @@
       "Bash(gcloud projects get-iam-policy:*)",
       "Bash(gh repo list:*)",
       "Bash(gcloud beta builds submit:*)",
-      "Bash(gcloud iam service-accounts:*)"
+      "Bash(gcloud iam service-accounts:*)",
+      "Bash(start:*)",
+      "Read(//d/Users/One Drive/OneDrive - Universidad Tecnologica del Peru/PROYECTO DMC/**)"
     ],
     "deny": [],
     "ask": []

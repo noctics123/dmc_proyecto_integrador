@@ -1,0 +1,266 @@
+{
+  "hero": {
+    "title": "Lakehouse de Créditos SIMBAD + Macro en GCP",
+    "subtitle": "Ingesta → Transformación → Métricas. Arquitectura híbrida costo-eficiente para análisis de riesgo crediticio en República Dominicana.",
+    "primaryCTA": {"label": "Ver Arquitectura", "href": "#arquitectura"},
+    "secondaryCTA": {"label": "Ver Inventario", "href": "#inventario"},
+    "badges": ["🏛️ SIMBAD", "📊 BigQuery", "⚡ DataProc", "🔄 Automatizado"]
+  },
+  "objective": {
+    "title": "Objetivo del Proyecto",
+    "problem": "Centralizar datos de créditos hipotecarios SIMBAD e indicadores macroeconómicos con baja latencia para análisis de riesgo crediticio.",
+    "solution": "Pipeline por capas (Landing → Bronze → Silver → Gold) con ingesta serverless y procesamiento híbrido BigQuery/DataProc.",
+    "impact": "Menor tiempo a insight, control de costos por uso y automatización completa del pipeline de datos.",
+    "benefits": [
+      "Análisis de riesgo crediticio en tiempo real",
+      "Integración de datos macroeconómicos para contexto",
+      "Pipeline automatizado con mínima intervención manual",
+      "Escalabilidad y eficiencia de costos"
+    ]
+  },
+  "architecture": {
+    "title": "Arquitectura Híbrida",
+    "subtitle": "Pipeline completo con DataProc para carga histórica y BigQuery para procesamiento incremental",
+    "layers": [
+      {
+        "name": "Landing Layer",
+        "description": "Ingesta de datos raw desde APIs y fuentes externas",
+        "services": ["Cloud Storage", "Cloud Run", "Scheduler"],
+        "color": "blue"
+      },
+      {
+        "name": "Bronze Layer", 
+        "description": "Almacenamiento de datos en formato original con particionado",
+        "services": ["DataProc", "External Tables"],
+        "color": "amber"
+      },
+      {
+        "name": "Silver Layer",
+        "description": "Datos limpios y normalizados para análisis",
+        "services": ["BigQuery", "Stored Procedures"],
+        "color": "emerald"
+      },
+      {
+        "name": "Gold Layer",
+        "description": "Métricas de negocio y agregaciones para dashboards",
+        "services": ["Métricas", "Alertas", "Visualization"],
+        "color": "purple"
+      }
+    ]
+  },
+  "inventory": {
+    "title": "Servicios Desplegados",
+    "subtitle": "Inventario completo de recursos activos en Google Cloud Platform",
+    "services": [
+      {
+        "category": "Compute",
+        "items": [
+          {"name": "DataProc Cluster", "status": "RUNNING", "specs": "4 workers, cluster-integrador-2025"},
+          {"name": "Cloud Run Services", "status": "ACTIVE", "specs": "7 servicios, us-central1"},
+          {"name": "Cloud Scheduler", "status": "ACTIVE", "specs": "5:00 AM diario, America/Lima"}
+        ]
+      },
+      {
+        "category": "Storage & Data",
+        "items": [
+          {"name": "Cloud Storage", "status": "ACTIVE", "specs": "dae-integrador-2025, retention 30d"},
+          {"name": "BigQuery Datasets", "status": "ACTIVE", "specs": "4 datasets, clustering optimizado"},
+          {"name": "External Tables", "status": "ACTIVE", "specs": "Parquet, wildcard detection"}
+        ]
+      },
+      {
+        "category": "Processing",
+        "items": [
+          {"name": "Stored Procedures", "status": "ACTIVE", "specs": "4 procedures con prefijo sp_"},
+          {"name": "Jupyter Notebooks", "status": "ACTIVE", "specs": "4 notebooks DataProc"},
+          {"name": "Incremental Loaders", "status": "ACTIVE", "specs": "Carga inteligente datos nuevos"}
+        ]
+      }
+    ]
+  },
+  "tech": {
+    "title": "Tecnologías y Por Qué",
+    "subtitle": "Justificación técnica de las decisiones de arquitectura",
+    "technologies": [
+      {
+        "name": "Google Cloud Platform",
+        "reason": "Ecosistema integrado, escalabilidad automática y costos predecibles",
+        "benefits": ["Serverless", "Pay-per-use", "Global infrastructure"]
+      },
+      {
+        "name": "BigQuery",
+        "reason": "Data warehouse serverless con procesamiento SQL optimizado",
+        "benefits": ["Columnar storage", "Automatic scaling", "Real-time analytics"]
+      },
+      {
+        "name": "DataProc",
+        "reason": "Procesamiento distribuido para cargas históricas masivas",
+        "benefits": ["PySpark", "Auto-scaling", "Cost-effective batch processing"]
+      },
+      {
+        "name": "Cloud Run",
+        "reason": "Contenedores serverless para extractores de datos",
+        "benefits": ["HTTP triggers", "Auto-scaling", "Zero maintenance"]
+      }
+    ]
+  },
+  "costEfficiency": {
+    "title": "Eficiencia de Costos",
+    "subtitle": "Optimización de recursos y control de gastos",
+    "strategies": [
+      {
+        "strategy": "Serverless Architecture",
+        "description": "Pago solo por uso real de recursos",
+        "savings": "60-80% vs. instancias siempre activas"
+      },
+      {
+        "strategy": "Incremental Processing", 
+        "description": "Procesamiento solo de datos nuevos",
+        "savings": "Reducción de 70% en costos de BigQuery"
+      },
+      {
+        "strategy": "Data Lifecycle Management",
+        "description": "Retention policies y particionado inteligente",
+        "savings": "50% menos almacenamiento en Cloud Storage"
+      },
+      {
+        "strategy": "Auto-scaling",
+        "description": "Escalado automático según demanda",
+        "savings": "Eliminación de over-provisioning"
+      }
+    ],
+    "monthlyEstimate": "$200-400 USD",
+    "breakdown": {
+      "BigQuery": "40%",
+      "DataProc": "30%", 
+      "Cloud Storage": "15%",
+      "Cloud Run": "10%",
+      "Other": "5%"
+    }
+  },
+  "metrics": {
+    "title": "Métricas & SLOs",
+    "subtitle": "Indicadores de rendimiento y objetivos de nivel de servicio",
+    "kpis": [
+      {
+        "metric": "676K+",
+        "label": "Registros SIMBAD",
+        "trend": "positive",
+        "description": "Datos históricos 2012-presente"
+      },
+      {
+        "metric": "4,965",
+        "label": "Métricas Gold",
+        "trend": "positive", 
+        "description": "Agregaciones por provincia/período"
+      },
+      {
+        "metric": "< 2h",
+        "label": "Latencia Pipeline",
+        "trend": "positive",
+        "description": "Landing → Gold end-to-end"
+      },
+      {
+        "metric": "99.9%",
+        "label": "Disponibilidad",
+        "trend": "positive",
+        "description": "Uptime del sistema"
+      }
+    ],
+    "slos": [
+      {"service": "Data Ingestion", "target": "99.5%", "current": "99.8%"},
+      {"service": "Data Processing", "target": "95%", "current": "97.2%"},
+      {"service": "Pipeline Latency", "target": "< 4h", "current": "< 2h"}
+    ]
+  },
+  "team": {
+    "title": "Equipo del Proyecto",
+    "subtitle": "Integrantes y responsabilidades del proyecto integrador",
+    "members": [
+      {
+        "name": "Ruben Quimper",
+        "role": "Lead Data Engineer",
+        "focus": "Orquestación, BigQuery, DataProc",
+        "contributions": [
+          "Arquitectura híbrida lakehouse",
+          "Stored procedures automatizados", 
+          "Pipeline CI/CD con Cloud Build",
+          "Optimización de costos y performance"
+        ]
+      },
+      {
+        "name": "Integrante 2",
+        "role": "ML/Analytics Engineer", 
+        "focus": "Modelos predictivos y métricas de negocio",
+        "contributions": [
+          "Desarrollo de métricas de riesgo",
+          "Integración de datos macroeconómicos",
+          "Dashboards en Looker Studio",
+          "Sistema de alertas automáticas"
+        ]
+      }
+    ]
+  },
+  "docs": {
+    "title": "Documentación & Reproducibilidad",
+    "subtitle": "Recursos técnicos y guías de implementación",
+    "resources": [
+      {
+        "title": "Documentación Técnica Interactiva",
+        "description": "Vista completa del pipeline con métricas en tiempo real",
+        "href": "docs/technical-overview.html",
+        "type": "interactive"
+      },
+      {
+        "title": "ARCHITECTURE.md",
+        "description": "Documentación técnica completa de la arquitectura",
+        "href": "ARCHITECTURE.md",
+        "type": "markdown"
+      },
+      {
+        "title": "BigQuery Processing",
+        "description": "Pipeline SQL con stored procedures automatizados",
+        "href": "bigquery_processing/README.md",
+        "type": "markdown"
+      },
+      {
+        "title": "DataProc Processing", 
+        "description": "Notebooks Jupyter para procesamiento distribuido",
+        "href": "lakehouse_processing/README.md",
+        "type": "markdown"
+      },
+      {
+        "title": "Repositorio GitHub",
+        "description": "Código completo con historial de commits",
+        "href": "https://github.com/noctics123/dmc_proyecto_integrador",
+        "type": "external"
+      }
+    ]
+  },
+  "faqs": {
+    "title": "Preguntas Frecuentes",
+    "subtitle": "Respuestas a las consultas más comunes sobre el proyecto",
+    "questions": [
+      {
+        "question": "¿Por qué elegir una arquitectura híbrida en lugar de solo BigQuery?",
+        "answer": "La arquitectura híbrida combina lo mejor de ambos mundos: DataProc para cargas históricas masivas (más económico) y BigQuery para procesamiento incremental y consultas analíticas (más rápido)."
+      },
+      {
+        "question": "¿Cómo se garantiza la calidad de los datos?",
+        "answer": "Implementamos validaciones automáticas, deduplicación con ROW_NUMBER(), parsing seguro con SAFE_CAST y flags de calidad en cada capa del pipeline."
+      },
+      {
+        "question": "¿Cuál es el costo mensual estimado del proyecto?",
+        "answer": "El costo mensual oscila entre $200-400 USD, optimizado con estrategias serverless, procesamiento incremental y lifecycle management de datos."
+      },
+      {
+        "question": "¿Cómo se maneja la escalabilidad del sistema?",
+        "answer": "Todos los servicios son auto-escalables: Cloud Run escala a cero, DataProc ajusta workers según demanda, y BigQuery escala automáticamente el procesamiento."
+      },
+      {
+        "question": "¿Qué pasa si falla algún componente del pipeline?",
+        "answer": "Implementamos exception handling en stored procedures, retry policies en Cloud Run, y monitoreo con alertas automáticas para detección temprana de fallos."
+      }
+    ]
+  }
+}

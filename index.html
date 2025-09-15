@@ -37,11 +37,15 @@
             </div>
             <div class="nav-menu" id="nav-menu">
                 <a href="#home" class="nav-link active">Inicio</a>
-                <a href="#architecture" class="nav-link">Arquitectura</a>
-                <a href="#services" class="nav-link">Servicios</a>
-                <a href="#components" class="nav-link">Componentes</a>
-                <a href="#metrics" class="nav-link">Métricas</a>
-                <a href="#docs" class="nav-link">Documentación</a>
+                <a href="#objetivo" class="nav-link">Objetivo</a>
+                <a href="#arquitectura" class="nav-link">Arquitectura</a>
+                <a href="#inventario" class="nav-link">Servicios</a>
+                <a href="#tecnologias" class="nav-link">Tecnologías</a>
+                <a href="#costos" class="nav-link">Costos</a>
+                <a href="#metricas" class="nav-link">Métricas</a>
+                <a href="#equipo" class="nav-link">Equipo</a>
+                <a href="#docs" class="nav-link">Docs</a>
+                <a href="#faqs" class="nav-link">FAQs</a>
             </div>
             <div class="nav-toggle" id="nav-toggle">
                 <span></span>
@@ -59,11 +63,10 @@
         <div class="container">
             <div class="hero-content" data-aos="fade-up">
                 <h1 class="hero-title">
-                    Pipeline de Datos <span class="gradient-text">Integral</span>
+                    Lakehouse de Créditos <span class="gradient-text">SIMBAD + Macro</span>
                 </h1>
                 <p class="hero-subtitle">
-                    Sistema completo de análisis de créditos hipotecarios SIMBAD e indicadores
-                    macroeconómicos usando arquitectura lakehouse híbrida en Google Cloud Platform
+                    Ingesta → Transformación → Métricas. Arquitectura híbrida costo-eficiente para análisis de riesgo crediticio en República Dominicana.
                 </p>
                 <div class="hero-badges">
                     <span class="badge">🏛️ SIMBAD</span>
@@ -72,13 +75,13 @@
                     <span class="badge">🔄 Automatizado</span>
                 </div>
                 <div class="hero-actions">
-                    <a href="docs/technical-overview.html" class="btn btn-primary">
-                        <i data-lucide="book-open"></i>
-                        Documentación Técnica
-                    </a>
-                    <a href="#architecture" class="btn btn-secondary">
-                        <i data-lucide="play"></i>
+                    <a href="#arquitectura" class="btn btn-primary">
+                        <i data-lucide="layers"></i>
                         Ver Arquitectura
+                    </a>
+                    <a href="#inventario" class="btn btn-secondary">
+                        <i data-lucide="server"></i>
+                        Ver Inventario
                     </a>
                     <a href="https://github.com/noctics123/dmc_proyecto_integrador" class="btn btn-outline" target="_blank">
                         <i data-lucide="github"></i>
@@ -100,8 +103,68 @@
         </div>
     </section>
 
+    <!-- Objective Section -->
+    <section id="objetivo" class="objective">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Objetivo del Proyecto</h2>
+                <p class="section-subtitle">
+                    Solución integral para análisis de riesgo crediticio con datos SIMBAD y macroeconómicos
+                </p>
+            </div>
+
+            <div class="objective-grid">
+                <div class="objective-card problem" data-aos="fade-up">
+                    <div class="objective-icon">
+                        <i data-lucide="alert-triangle"></i>
+                    </div>
+                    <h3>Problema</h3>
+                    <p>Centralizar datos de créditos hipotecarios SIMBAD e indicadores macroeconómicos con baja latencia para análisis de riesgo crediticio.</p>
+                </div>
+
+                <div class="objective-card solution" data-aos="fade-up" data-aos-delay="100">
+                    <div class="objective-icon">
+                        <i data-lucide="lightbulb"></i>
+                    </div>
+                    <h3>Solución</h3>
+                    <p>Pipeline por capas (Landing → Bronze → Silver → Gold) con ingesta serverless y procesamiento híbrido BigQuery/DataProc.</p>
+                </div>
+
+                <div class="objective-card impact" data-aos="fade-up" data-aos-delay="200">
+                    <div class="objective-icon">
+                        <i data-lucide="trending-up"></i>
+                    </div>
+                    <h3>Impacto</h3>
+                    <p>Menor tiempo a insight, control de costos por uso y automatización completa del pipeline de datos.</p>
+                </div>
+            </div>
+
+            <div class="benefits-section" data-aos="fade-up" data-aos-delay="300">
+                <h3>Beneficios Clave</h3>
+                <div class="benefits-grid">
+                    <div class="benefit-item">
+                        <i data-lucide="shield"></i>
+                        <span>Análisis de riesgo crediticio en tiempo real</span>
+                    </div>
+                    <div class="benefit-item">
+                        <i data-lucide="layers"></i>
+                        <span>Integración de datos macroeconómicos para contexto</span>
+                    </div>
+                    <div class="benefit-item">
+                        <i data-lucide="zap"></i>
+                        <span>Pipeline automatizado con mínima intervención manual</span>
+                    </div>
+                    <div class="benefit-item">
+                        <i data-lucide="arrow-up"></i>
+                        <span>Escalabilidad y eficiencia de costos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Architecture Overview -->
-    <section id="architecture" class="architecture">
+    <section id="arquitectura" class="architecture">
         <div class="container">
             <div class="section-header" data-aos="fade-up">
                 <h2 class="section-title">Arquitectura Híbrida</h2>
@@ -174,36 +237,35 @@
         </div>
     </section>
 
-    <!-- Services by Layer -->
-    <section id="services" class="services">
+    <!-- Services Inventory -->
+    <section id="inventario" class="services">
         <div class="container">
             <div class="section-header" data-aos="fade-up">
-                <h2 class="section-title">Servicios por Capa</h2>
+                <h2 class="section-title">Servicios Desplegados</h2>
                 <p class="section-subtitle">
-                    Detalle completo de tecnologías y configuraciones por cada layer del lakehouse
+                    Inventario completo de recursos activos en Google Cloud Platform
                 </p>
             </div>
 
             <div class="services-tabs">
                 <div class="tab-buttons">
-                    <button class="tab-btn active" data-tab="landing">Landing</button>
-                    <button class="tab-btn" data-tab="bronze">Bronze</button>
-                    <button class="tab-btn" data-tab="silver">Silver</button>
-                    <button class="tab-btn" data-tab="gold">Gold</button>
+                    <button class="tab-btn active" data-tab="compute">Compute</button>
+                    <button class="tab-btn" data-tab="storage">Storage & Data</button>
+                    <button class="tab-btn" data-tab="processing">Processing</button>
                 </div>
 
-                <div class="tab-content active" id="landing-tab">
+                <div class="tab-content active" id="compute-tab">
                     <div class="service-grid">
                         <div class="service-detail-card" data-aos="fade-up">
                             <div class="service-icon">
-                                <i data-lucide="cloud"></i>
+                                <i data-lucide="cpu"></i>
                             </div>
-                            <h3>Cloud Storage</h3>
-                            <p>Almacenamiento CSV raw con retention de 30 días</p>
+                            <h3>DataProc Cluster</h3>
+                            <p>Procesamiento distribuido para cargas históricas masivas</p>
                             <div class="service-specs">
-                                <span class="spec">Bucket: dae-integrador-2025</span>
-                                <span class="spec">Estructura: /lakehouse/landing/</span>
-                                <span class="spec">Formato: CSV particionado por dt=</span>
+                                <span class="spec">Status: RUNNING</span>
+                                <span class="spec">Workers: 4 instancias</span>
+                                <span class="spec">Cluster: cluster-integrador-2025</span>
                             </div>
                         </div>
 
@@ -211,12 +273,12 @@
                             <div class="service-icon">
                                 <i data-lucide="server"></i>
                             </div>
-                            <h3>Cloud Run</h3>
-                            <p>SIMBAD API harvester con trigger automático</p>
+                            <h3>Cloud Run Services</h3>
+                            <p>Contenedores serverless para extractores de datos</p>
                             <div class="service-specs">
+                                <span class="spec">Status: ACTIVE</span>
                                 <span class="spec">Servicios: 7 activos</span>
                                 <span class="spec">Region: us-central1</span>
-                                <span class="spec">Trigger: HTTP automático</span>
                             </div>
                         </div>
 
@@ -227,26 +289,26 @@
                             <h3>Cloud Scheduler</h3>
                             <p>Automatización de cargas diarias</p>
                             <div class="service-specs">
+                                <span class="spec">Status: ACTIVE</span>
                                 <span class="spec">Schedule: 5:00 AM diario</span>
-                                <span class="spec">Jobs: SIMBAD + Macro</span>
                                 <span class="spec">Timezone: America/Lima</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="tab-content" id="bronze-tab">
+                <div class="tab-content" id="storage-tab">
                     <div class="service-grid">
                         <div class="service-detail-card" data-aos="fade-up">
                             <div class="service-icon">
-                                <i data-lucide="cpu"></i>
+                                <i data-lucide="cloud"></i>
                             </div>
-                            <h3>DataProc</h3>
-                            <p>Cluster PySpark para carga histórica completa</p>
+                            <h3>Cloud Storage</h3>
+                            <p>Almacenamiento CSV raw con retention de 30 días</p>
                             <div class="service-specs">
-                                <span class="spec">Cluster: cluster-integrador-2025</span>
-                                <span class="spec">Workers: 4 instancias</span>
-                                <span class="spec">Status: RUNNING</span>
+                                <span class="spec">Status: ACTIVE</span>
+                                <span class="spec">Bucket: dae-integrador-2025</span>
+                                <span class="spec">Retention: 30 días</span>
                             </div>
                         </div>
 
@@ -254,113 +316,217 @@
                             <div class="service-icon">
                                 <i data-lucide="database"></i>
                             </div>
-                            <h3>External Tables</h3>
-                            <p>Acceso directo a Parquet desde BigQuery</p>
+                            <h3>BigQuery Datasets</h3>
+                            <p>Data warehouse serverless con procesamiento SQL optimizado</p>
                             <div class="service-specs">
-                                <span class="spec">Tables: 4 datasets</span>
-                                <span class="spec">Format: Parquet optimizado</span>
-                                <span class="spec">Detection: Wildcard automático</span>
+                                <span class="spec">Status: ACTIVE</span>
+                                <span class="spec">Datasets: 4 activos</span>
+                                <span class="spec">Clustering: Optimizado</span>
                             </div>
                         </div>
 
                         <div class="service-detail-card" data-aos="fade-up" data-aos-delay="200">
                             <div class="service-icon">
-                                <i data-lucide="file-text"></i>
+                                <i data-lucide="layers"></i>
                             </div>
-                            <h3>Notebooks</h3>
-                            <p>Jupyter notebooks para transformaciones</p>
+                            <h3>External Tables</h3>
+                            <p>Acceso directo a Parquet desde BigQuery</p>
                             <div class="service-specs">
-                                <span class="spec">Count: 4 notebooks</span>
-                                <span class="spec">SIMBAD: 676K+ registros</span>
-                                <span class="spec">Macro: 3 datasets</span>
+                                <span class="spec">Status: ACTIVE</span>
+                                <span class="spec">Format: Parquet</span>
+                                <span class="spec">Detection: Wildcard automático</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="tab-content" id="silver-tab">
+                <div class="tab-content" id="processing-tab">
                     <div class="service-grid">
                         <div class="service-detail-card" data-aos="fade-up">
-                            <div class="service-icon">
-                                <i data-lucide="trending-up"></i>
-                            </div>
-                            <h3>BigQuery</h3>
-                            <p>Procesamiento y almacenamiento optimizado</p>
-                            <div class="service-specs">
-                                <span class="spec">Dataset: silver_clean</span>
-                                <span class="spec">Clustering: entidad, tipoCliente</span>
-                                <span class="spec">Records: 110K procesados</span>
-                            </div>
-                        </div>
-
-                        <div class="service-detail-card" data-aos="fade-up" data-aos-delay="100">
                             <div class="service-icon">
                                 <i data-lucide="settings"></i>
                             </div>
                             <h3>Stored Procedures</h3>
                             <p>Lógica de transformación automatizada</p>
                             <div class="service-specs">
+                                <span class="spec">Status: ACTIVE</span>
                                 <span class="spec">Procedures: 4 con prefijo sp_</span>
                                 <span class="spec">Mode: Incremental optimizado</span>
-                                <span class="spec">Error: Exception handling</span>
-                            </div>
-                        </div>
-
-                        <div class="service-detail-card" data-aos="fade-up" data-aos-delay="200">
-                            <div class="service-icon">
-                                <i data-lucide="filter"></i>
-                            </div>
-                            <h3>Data Cleaning</h3>
-                            <p>Deduplicación y validación automática</p>
-                            <div class="service-specs">
-                                <span class="spec">Quality: Flags automáticos</span>
-                                <span class="spec">Dedup: ROW_NUMBER() window</span>
-                                <span class="spec">Validation: SAFE_CAST parsing</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab-content" id="gold-tab">
-                    <div class="service-grid">
-                        <div class="service-detail-card" data-aos="fade-up">
-                            <div class="service-icon">
-                                <i data-lucide="bar-chart"></i>
-                            </div>
-                            <h3>Métricas</h3>
-                            <p>KPIs agregados con datos macroeconómicos</p>
-                            <div class="service-specs">
-                                <span class="spec">Records: 4,965 métricas</span>
-                                <span class="spec">Period: 2012-2025</span>
-                                <span class="spec">Partition: Temporal por mes</span>
                             </div>
                         </div>
 
                         <div class="service-detail-card" data-aos="fade-up" data-aos-delay="100">
                             <div class="service-icon">
-                                <i data-lucide="alert-triangle"></i>
+                                <i data-lucide="file-text"></i>
                             </div>
-                            <h3>Alertas</h3>
-                            <p>Sistema de detección automática de riesgos</p>
+                            <h3>Jupyter Notebooks</h3>
+                            <p>Notebooks para procesamiento distribuido con PySpark</p>
                             <div class="service-specs">
-                                <span class="spec">Tables: alertas_provincia_12m</span>
-                                <span class="spec">Levels: ALTO, MEDIO, BAJO</span>
-                                <span class="spec">Schedule: 8:00 AM diario</span>
+                                <span class="spec">Status: ACTIVE</span>
+                                <span class="spec">Count: 4 notebooks</span>
+                                <span class="spec">SIMBAD: 676K+ registros</span>
                             </div>
                         </div>
 
                         <div class="service-detail-card" data-aos="fade-up" data-aos-delay="200">
                             <div class="service-icon">
-                                <i data-lucide="monitor"></i>
+                                <i data-lucide="download"></i>
                             </div>
-                            <h3>Visualization</h3>
-                            <p>Dashboards ejecutivos en Looker Studio</p>
+                            <h3>Incremental Loaders</h3>
+                            <p>Carga inteligente solo de datos nuevos</p>
                             <div class="service-specs">
-                                <span class="spec">Platform: Looker Studio</span>
-                                <span class="spec">Connection: BigQuery directo</span>
-                                <span class="spec">Refresh: Tiempo real</span>
+                                <span class="spec">Status: ACTIVE</span>
+                                <span class="spec">Mode: Incremental</span>
+                                <span class="spec">Efficiency: 70% cost reduction</span>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Technologies Section -->
+    <section id="tecnologias" class="technologies">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Tecnologías y Por Qué</h2>
+                <p class="section-subtitle">
+                    Justificación técnica de las decisiones de arquitectura
+                </p>
+            </div>
+
+            <div class="tech-grid">
+                <div class="tech-card" data-aos="fade-up">
+                    <div class="tech-icon">
+                        <i data-lucide="cloud"></i>
+                    </div>
+                    <h3>Google Cloud Platform</h3>
+                    <p class="tech-reason">Ecosistema integrado, escalabilidad automática y costos predecibles</p>
+                    <div class="tech-benefits">
+                        <span class="benefit">Serverless</span>
+                        <span class="benefit">Pay-per-use</span>
+                        <span class="benefit">Global infrastructure</span>
+                    </div>
+                </div>
+
+                <div class="tech-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="tech-icon">
+                        <i data-lucide="database"></i>
+                    </div>
+                    <h3>BigQuery</h3>
+                    <p class="tech-reason">Data warehouse serverless con procesamiento SQL optimizado</p>
+                    <div class="tech-benefits">
+                        <span class="benefit">Columnar storage</span>
+                        <span class="benefit">Automatic scaling</span>
+                        <span class="benefit">Real-time analytics</span>
+                    </div>
+                </div>
+
+                <div class="tech-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="tech-icon">
+                        <i data-lucide="cpu"></i>
+                    </div>
+                    <h3>DataProc</h3>
+                    <p class="tech-reason">Procesamiento distribuido para cargas históricas masivas</p>
+                    <div class="tech-benefits">
+                        <span class="benefit">PySpark</span>
+                        <span class="benefit">Auto-scaling</span>
+                        <span class="benefit">Cost-effective batch</span>
+                    </div>
+                </div>
+
+                <div class="tech-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="tech-icon">
+                        <i data-lucide="server"></i>
+                    </div>
+                    <h3>Cloud Run</h3>
+                    <p class="tech-reason">Contenedores serverless para extractores de datos</p>
+                    <div class="tech-benefits">
+                        <span class="benefit">HTTP triggers</span>
+                        <span class="benefit">Auto-scaling</span>
+                        <span class="benefit">Zero maintenance</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cost Efficiency Section -->
+    <section id="costos" class="cost-efficiency">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Eficiencia de Costos</h2>
+                <p class="section-subtitle">
+                    Optimización de recursos y control de gastos
+                </p>
+            </div>
+
+            <div class="cost-strategies">
+                <div class="strategy-card" data-aos="fade-up">
+                    <div class="strategy-icon">
+                        <i data-lucide="zap"></i>
+                    </div>
+                    <h3>Serverless Architecture</h3>
+                    <p>Pago solo por uso real de recursos</p>
+                    <div class="savings">60-80% vs. instancias siempre activas</div>
+                </div>
+
+                <div class="strategy-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="strategy-icon">
+                        <i data-lucide="trending-up"></i>
+                    </div>
+                    <h3>Incremental Processing</h3>
+                    <p>Procesamiento solo de datos nuevos</p>
+                    <div class="savings">Reducción de 70% en costos de BigQuery</div>
+                </div>
+
+                <div class="strategy-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="strategy-icon">
+                        <i data-lucide="archive"></i>
+                    </div>
+                    <h3>Data Lifecycle Management</h3>
+                    <p>Retention policies y particionado inteligente</p>
+                    <div class="savings">50% menos almacenamiento en Cloud Storage</div>
+                </div>
+
+                <div class="strategy-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="strategy-icon">
+                        <i data-lucide="arrow-up-down"></i>
+                    </div>
+                    <h3>Auto-scaling</h3>
+                    <p>Escalado automático según demanda</p>
+                    <div class="savings">Eliminación de over-provisioning</div>
+                </div>
+            </div>
+
+            <div class="cost-summary" data-aos="fade-up" data-aos-delay="400">
+                <div class="cost-estimate">
+                    <h3>Costo Mensual Estimado</h3>
+                    <div class="cost-amount">$200-400 USD</div>
+                </div>
+                <div class="cost-breakdown">
+                    <h4>Distribución de Costos</h4>
+                    <div class="breakdown-item">
+                        <span>BigQuery</span>
+                        <span>40%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>DataProc</span>
+                        <span>30%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Cloud Storage</span>
+                        <span>15%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Cloud Run</span>
+                        <span>10%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Other</span>
+                        <span>5%</span>
                     </div>
                 </div>
             </div>
@@ -477,7 +643,7 @@
     </section>
 
     <!-- Metrics Dashboard -->
-    <section id="metrics" class="metrics">
+    <section id="metricas" class="metrics">
         <div class="container">
             <div class="section-header" data-aos="fade-up">
                 <h2 class="section-title">Métricas del Pipeline</h2>
@@ -538,6 +704,56 @@
 
             <div class="chart-container" data-aos="fade-up" data-aos-delay="400">
                 <canvas id="pipelineChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="equipo" class="team">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Equipo del Proyecto</h2>
+                <p class="section-subtitle">
+                    Integrantes y responsabilidades del proyecto integrador
+                </p>
+            </div>
+
+            <div class="team-grid">
+                <div class="team-member" data-aos="fade-up">
+                    <div class="member-avatar">
+                        <i data-lucide="user"></i>
+                    </div>
+                    <h3>Ruben Quimper</h3>
+                    <p class="member-role">Lead Data Engineer</p>
+                    <p class="member-focus">Orquestación, BigQuery, DataProc</p>
+                    <div class="member-contributions">
+                        <h4>Contribuciones Principales:</h4>
+                        <ul>
+                            <li>Arquitectura híbrida lakehouse</li>
+                            <li>Stored procedures automatizados</li>
+                            <li>Pipeline CI/CD con Cloud Build</li>
+                            <li>Optimización de costos y performance</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="team-member" data-aos="fade-up" data-aos-delay="100">
+                    <div class="member-avatar">
+                        <i data-lucide="user"></i>
+                    </div>
+                    <h3>Integrante 2</h3>
+                    <p class="member-role">ML/Analytics Engineer</p>
+                    <p class="member-focus">Modelos predictivos y métricas de negocio</p>
+                    <div class="member-contributions">
+                        <h4>Contribuciones Principales:</h4>
+                        <ul>
+                            <li>Desarrollo de métricas de riesgo</li>
+                            <li>Integración de datos macroeconómicos</li>
+                            <li>Dashboards en Looker Studio</li>
+                            <li>Sistema de alertas automáticas</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -618,6 +834,70 @@
                         <span>🔄 CI/CD</span>
                     </div>
                 </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQs Section -->
+    <section id="faqs" class="faqs">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Preguntas Frecuentes</h2>
+                <p class="section-subtitle">
+                    Respuestas a las consultas más comunes sobre el proyecto
+                </p>
+            </div>
+
+            <div class="faqs-grid">
+                <div class="faq-item" data-aos="fade-up">
+                    <div class="faq-question">
+                        <h3>¿Por qué elegir una arquitectura híbrida en lugar de solo BigQuery?</h3>
+                        <i data-lucide="chevron-down" class="faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>La arquitectura híbrida combina lo mejor de ambos mundos: DataProc para cargas históricas masivas (más económico) y BigQuery para procesamiento incremental y consultas analíticas (más rápido).</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="100">
+                    <div class="faq-question">
+                        <h3>¿Cómo se garantiza la calidad de los datos?</h3>
+                        <i data-lucide="chevron-down" class="faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Implementamos validaciones automáticas, deduplicación con ROW_NUMBER(), parsing seguro con SAFE_CAST y flags de calidad en cada capa del pipeline.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="200">
+                    <div class="faq-question">
+                        <h3>¿Cuál es el costo mensual estimado del proyecto?</h3>
+                        <i data-lucide="chevron-down" class="faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>El costo mensual oscila entre $200-400 USD, optimizado con estrategias serverless, procesamiento incremental y lifecycle management de datos.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="300">
+                    <div class="faq-question">
+                        <h3>¿Cómo se maneja la escalabilidad del sistema?</h3>
+                        <i data-lucide="chevron-down" class="faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Todos los servicios son auto-escalables: Cloud Run escala a cero, DataProc ajusta workers según demanda, y BigQuery escala automáticamente el procesamiento.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="400">
+                    <div class="faq-question">
+                        <h3>¿Qué pasa si falla algún componente del pipeline?</h3>
+                        <i data-lucide="chevron-down" class="faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Implementamos exception handling en stored procedures, retry policies en Cloud Run, y monitoreo con alertas automáticas para detección temprana de fallos.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
