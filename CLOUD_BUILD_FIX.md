@@ -24,7 +24,15 @@ Estructura Obsoleta (que buscan los builds):
 │   └── backend/            # ❌ NO EXISTE
 ```
 
-## ✅ **Solución Implementada**
+## ✅ **Solución Implementada y Desplegada**
+
+### **🎯 Triggers Actualizados (FIXED)**
+
+| Trigger Nuevo | Path Corregida | Estado | Propósito |
+|---------------|----------------|---------|-----------|
+| `macroeconomics-landing-trigger` | `landing/macroeconomics/cloudbuild.yaml` | ✅ ACTIVO | Deploy scraper macro |
+| `simbad-historical-trigger` | `landing/simbad/historical/cloudbuild.yaml` | ✅ ACTIVO | Deploy SIMBAD histórico |
+| `simbad-incremental-trigger` | `landing/simbad/incremental/cloudbuild.job.yaml` | ✅ ACTIVO | Deploy SIMBAD incremental |
 
 ### **1. Archivos de Configuración Nuevos**
 
