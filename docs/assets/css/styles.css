@@ -401,78 +401,6 @@ a {
   margin-bottom: var(--spacing-16);
 }
 
-.architecture-diagram {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-8);
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-@media (min-width: 768px) {
-  .architecture-diagram {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .architecture-diagram {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.layer {
-  background: white;
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-8);
-  box-shadow: var(--shadow-md);
-  transition: var(--transition-base);
-  border-top: 4px solid;
-}
-
-.layer:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-xl);
-}
-
-.landing-layer { border-top-color: var(--primary-color); }
-.bronze-layer { border-top-color: var(--warning-color); }
-.silver-layer { border-top-color: var(--gray-400); }
-.gold-layer { border-top-color: var(--secondary-color); }
-
-.layer h3 {
-  font-size: var(--font-size-xl);
-  font-weight: 600;
-  margin-bottom: var(--spacing-6);
-  color: var(--gray-900);
-}
-
-.layer-services {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-}
-
-.service-card {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3);
-  padding: var(--spacing-3);
-  background: var(--gray-50);
-  border-radius: var(--radius-base);
-  transition: var(--transition-fast);
-}
-
-.service-card:hover {
-  background: var(--gray-100);
-}
-
-.service-card i {
-  width: 20px;
-  height: 20px;
-  color: var(--primary-color);
-}
-
 /* Services Section */
 .services {
   padding: var(--spacing-20) 0;
@@ -1227,6 +1155,10 @@ a {
   border-radius: 16px;
   border: 1px solid var(--gray-200);
   transition: all 0.3s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .tech-card:hover {
@@ -1235,29 +1167,31 @@ a {
   border-color: var(--primary-color);
 }
 
-.tech-icon {
-  width: 50px;
-  height: 50px;
-  background: var(--primary-color);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 20px;
-  margin-bottom: var(--spacing-4);
+.tech-card-logo {
+    height: 50px;
+    width: 50px;
+    object-fit: contain;
+    margin-bottom: var(--spacing-4);
+}
+
+.tech-card h3 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-3);
 }
 
 .tech-reason {
   color: var(--gray-600);
   margin-bottom: var(--spacing-4);
   font-style: italic;
+  min-height: 50px;
 }
 
 .tech-benefits {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-2);
+  justify-content: center;
+  margin-top: auto;
 }
 
 .tech-benefits .benefit {
@@ -1557,38 +1491,4 @@ a {
 .architecture-svg-container svg {
     width: 100%;
     height: auto;
-}
-
-.tech-logo-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: var(--spacing-8);
-    margin-top: var(--spacing-12);
-    justify-items: center;
-    align-items: center;
-}
-
-.tech-logo-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-3);
-    transition: transform var(--transition-fast);
-    text-align: center;
-}
-
-.tech-logo-card:hover {
-    transform: scale(1.05);
-}
-
-.tech-logo {
-    height: 56px;
-    width: 56px;
-    object-fit: contain;
-}
-
-.tech-logo-name {
-    font-weight: 500;
-    color: var(--gray-700);
-    font-size: var(--font-size-sm);
 }
