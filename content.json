@@ -178,8 +178,8 @@
     "subtitle": "Integrantes y responsabilidades del proyecto integrador",
     "members": [
       {
-        "name": "Ruben Quimper",
-        "role": "Lead Data Engineer",
+        "name": "Ruben Quispe",
+        "role": "Data Engineer",
         "focus": "Orquestación, BigQuery, DataProc",
         "contributions": [
           "Arquitectura híbrida lakehouse",

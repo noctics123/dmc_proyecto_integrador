@@ -169,70 +169,85 @@
             <div class="section-header" data-aos="fade-up">
                 <h2 class="section-title">Arquitectura Híbrida</h2>
                 <p class="section-subtitle">
-                    Pipeline completo con DataProc para carga histórica y BigQuery para procesamiento incremental
+                    Flujo de datos desde la ingesta hasta la capa de métricas, combinando procesamiento serverless y batch.
                 </p>
             </div>
 
-            <div class="architecture-diagram" data-aos="zoom-in" data-aos-delay="200">
-                <div class="layer landing-layer">
-                    <h3>Landing Layer</h3>
-                    <div class="layer-services">
-                        <div class="service-card">
-                            <i data-lucide="cloud"></i>
-                            <span>Cloud Storage</span>
-                        </div>
-                        <div class="service-card">
-                            <i data-lucide="server"></i>
-                            <span>Cloud Run</span>
-                        </div>
-                        <div class="service-card">
-                            <i data-lucide="clock"></i>
-                            <span>Scheduler</span>
-                        </div>
-                    </div>
-                </div>
+            <!-- Architecture SVG Diagram -->
+            <div class="architecture-svg-container" data-aos="zoom-in" data-aos-delay="100">
+                <svg viewBox="0 0 800 420" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <style>
+                            .svg-title { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 600; fill: #0F172A; }
+                            .svg-text { font-family: 'Inter', sans-serif; font-size: 11px; fill: #475569; }
+                            .svg-label { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; fill: #1E293B; }
+                            .svg-arrow { fill: none; stroke: #94A3B8; stroke-width: 1.5; marker-end: url(#arrowhead); }
+                            .svg-box { fill: #FFFFFF; stroke: #E2E8F0; stroke-width: 1; rx: 8; }
+                            .svg-icon { font-size: 32px; }
+                        </style>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#94A3B8" />
+                        </marker>
+                    </defs>
 
-                <div class="layer bronze-layer">
-                    <h3>Bronze Layer</h3>
-                    <div class="layer-services">
-                        <div class="service-card">
-                            <i data-lucide="cpu"></i>
-                            <span>DataProc</span>
-                        </div>
-                        <div class="service-card">
-                            <i data-lucide="database"></i>
-                            <span>External Tables</span>
-                        </div>
-                    </div>
-                </div>
+                    <!-- Title -->
+                    <text x="400" y="25" text-anchor="middle" class="svg-title">Diagrama del Pipeline de Datos</text>
 
-                <div class="layer silver-layer">
-                    <h3>Silver Layer</h3>
-                    <div class="layer-services">
-                        <div class="service-card">
-                            <i data-lucide="trending-up"></i>
-                            <span>BigQuery</span>
-                        </div>
-                        <div class="service-card">
-                            <i data-lucide="settings"></i>
-                            <span>Stored Procedures</span>
-                        </div>
-                    </div>
-                </div>
+                    <!-- Layers -->
+                    <g id="layer-landing">
+                        <rect x="50" y="60" width="140" height="280" class="svg-box" style="fill: #F0F9FF;"/>
+                        <text x="120" y="85" text-anchor="middle" class="svg-label">Landing</text>
+                        <text x="120" y="180" text-anchor="middle" class="svg-icon">📦</text>
+                        <text x="120" y="220" text-anchor="middle" class="svg-text" style="font-weight: 500;">Cloud Storage</text>
+                        <text x="120" y="235" text-anchor="middle" class="svg-text">(Raw Files: CSV, JSON)</text>
+                    </g>
 
-                <div class="layer gold-layer">
-                    <h3>Gold Layer</h3>
-                    <div class="layer-services">
-                        <div class="service-card">
-                            <i data-lucide="bar-chart"></i>
-                            <span>Métricas</span>
-                        </div>
-                        <div class="service-card">
-                            <i data-lucide="alert-triangle"></i>
-                            <span>Alertas</span>
-                        </div>
-                    </div>
-                </div>
+                    <g id="layer-bronze">
+                        <rect x="230" y="60" width="140" height="280" class="svg-box" style="fill: #FEFCE8;"/>
+                        <text x="300" y="85" text-anchor="middle" class="svg-label">Bronze</text>
+                        <text x="300" y="180" text-anchor="middle" class="svg-icon">🧱</text>
+                        <text x="300" y="220" text-anchor="middle" class="svg-text" style="font-weight: 500;">BigQuery External</text>
+                        <text x="300" y="235" text-anchor="middle" class="svg-text">(Datos crudos, sin limpiar)</text>
+                    </g>
+
+                    <g id="layer-silver">
+                        <rect x="410" y="60" width="140" height="280" class="svg-box" style="fill: #F8FAFC;"/>
+                        <text x="480" y="85" text-anchor="middle" class="svg-label">Silver</text>
+                        <text x="480" y="180" text-anchor="middle" class="svg-icon">✨</text>
+                        <text x="480" y="220" text-anchor="middle" class="svg-text" style="font-weight: 500;">BigQuery Managed</text>
+                        <text x="480" y="235" text-anchor="middle" class="svg-text">(Limpios, unificados)</text>
+                    </g>
+
+                    <g id="layer-gold">
+                        <rect x="590" y="60" width="140" height="280" class="svg-box" style="fill: #EEF2FF;"/>
+                        <text x="660" y="85" text-anchor="middle" class="svg-label">Gold</text>
+                        <text x="660" y="180" text-anchor="middle" class="svg-icon">🏆</text>
+                        <text x="660" y="220" text-anchor="middle" class="svg-text" style="font-weight: 500;">BigQuery Aggregates</text>
+                        <text x="660" y="235" text-anchor="middle" class="svg-text">(Métricas de negocio)</text>
+                    </g>
+
+                    <!-- Arrows -->
+                    <path d="M195 200 H225" class="svg-arrow" />
+                    <path d="M375 200 H405" class="svg-arrow" />
+                    <path d="M555 200 H585" class="svg-arrow" />
+
+                    <!-- Processing Logic -->
+                    <g id="incremental-path">
+                        <text x="212" y="150" text-anchor="middle" class="svg-text" style="font-weight:500">Cloud Run</text>
+                        <text x="212" y="162" text-anchor="middle" class="svg-text">(Incremental)</text>
+                        <text x="392" y="150" text-anchor="middle" class="svg-text" style="font-weight:500">Stored Procedures</text>
+                        <text x="392" y="162" text-anchor="middle" class="svg-text">(SQL Transforms)</text>
+                        <text x="572" y="150" text-anchor="middle" class="svg-text" style="font-weight:500">Stored Procedures</text>
+                        <text x="572" y="162" text-anchor="middle" class="svg-text">(Aggregations)</text>
+                    </g>
+                    
+                    <!-- Historical Path -->
+                    <g id="historical-path">
+                        <path d="M195 300 Q 390 380 555 300" class="svg-arrow" style="stroke-dasharray: 4;"/>
+                        <text x="375" y="365" text-anchor="middle" class="svg-text" style="font-weight:500">DataProc (PySpark)</text>
+                        <text x="375" y="377" text-anchor="middle" class="svg-text">Carga Histórica Masiva (Bronze → Silver)</text>
+                    </g>
+                </svg>
             </div>
         </div>
     </section>
@@ -391,63 +406,36 @@
     <section id="tecnologias" class="technologies">
         <div class="container">
             <div class="section-header" data-aos="fade-up">
-                <h2 class="section-title">Tecnologías y Por Qué</h2>
+                <h2 class="section-title">Tecnologías Clave</h2>
                 <p class="section-subtitle">
-                    Justificación técnica de las decisiones de arquitectura
+                    El stack tecnológico seleccionado para construir un pipeline de datos robusto, escalable y eficiente.
                 </p>
             </div>
 
-            <div class="tech-grid">
-                <div class="tech-card" data-aos="fade-up">
-                    <div class="tech-icon">
-                        <i data-lucide="cloud"></i>
-                    </div>
-                    <h3>Google Cloud Platform</h3>
-                    <p class="tech-reason">Ecosistema integrado, escalabilidad automática y costos predecibles</p>
-                    <div class="tech-benefits">
-                        <span class="benefit">Serverless</span>
-                        <span class="benefit">Pay-per-use</span>
-                        <span class="benefit">Global infrastructure</span>
-                    </div>
+            <div class="tech-logo-grid" data-aos="fade-up" data-aos-delay="100">
+                <div class="tech-logo-card">
+                    <img src="https://storage.googleapis.com/cloud-www-dev-media/images/products/icons/product-icon-google-cloud.svg" alt="Google Cloud Platform Logo" class="tech-logo">
+                    <div class="tech-logo-name">Google Cloud</div>
                 </div>
-
-                <div class="tech-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="tech-icon">
-                        <i data-lucide="database"></i>
-                    </div>
-                    <h3>BigQuery</h3>
-                    <p class="tech-reason">Data warehouse serverless con procesamiento SQL optimizado</p>
-                    <div class="tech-benefits">
-                        <span class="benefit">Columnar storage</span>
-                        <span class="benefit">Automatic scaling</span>
-                        <span class="benefit">Real-time analytics</span>
-                    </div>
+                <div class="tech-logo-card">
+                    <img src="https://storage.googleapis.com/cloud-www-dev-media/images/products/icons/product-icon-bigquery.svg" alt="BigQuery Logo" class="tech-logo">
+                    <div class="tech-logo-name">BigQuery</div>
                 </div>
-
-                <div class="tech-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="tech-icon">
-                        <i data-lucide="cpu"></i>
-                    </div>
-                    <h3>DataProc</h3>
-                    <p class="tech-reason">Procesamiento distribuido para cargas históricas masivas</p>
-                    <div class="tech-benefits">
-                        <span class="benefit">PySpark</span>
-                        <span class="benefit">Auto-scaling</span>
-                        <span class="benefit">Cost-effective batch</span>
-                    </div>
+                <div class="tech-logo-card">
+                    <img src="https://storage.googleapis.com/cloud-www-dev-media/images/products/icons/product-icon-dataproc.svg" alt="DataProc Logo" class="tech-logo">
+                    <div class="tech-logo-name">DataProc</div>
                 </div>
-
-                <div class="tech-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="tech-icon">
-                        <i data-lucide="server"></i>
-                    </div>
-                    <h3>Cloud Run</h3>
-                    <p class="tech-reason">Contenedores serverless para extractores de datos</p>
-                    <div class="tech-benefits">
-                        <span class="benefit">HTTP triggers</span>
-                        <span class="benefit">Auto-scaling</span>
-                        <span class="benefit">Zero maintenance</span>
-                    </div>
+                <div class="tech-logo-card">
+                    <img src="https://storage.googleapis.com/cloud-www-dev-media/images/products/icons/product-icon-cloud-run.svg" alt="Cloud Run Logo" class="tech-logo">
+                    <div class="tech-logo-name">Cloud Run</div>
+                </div>
+                <div class="tech-logo-card">
+                    <svg class="tech-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22.41a.91.91 0 0 0 .6-.23l7.83-7.21a.9.9 0 0 0 .3-.63V8.1a.9.9 0 0 0-.9-.9h-5.5a.9.9 0 0 0-.6.23L6.5 14.1a.9.9 0 0 0 0 1.27l4.9 4.81a.9.9 0 0 0 .6.23z" fill="#306998"></path><path d="M15.4 7.2H9.9a.9.9 0 0 0-.6.23L2.1 14.1a.9.9 0 0 0 0 1.27l4.9 4.81a.9.9 0 0 0 1.2 0l7.2-7.83a.9.9 0 0 0 .3-.63V8.1a.9.9 0 0 0-.9-.9z" fill="#FFD43B"></path><path d="M15 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-8 16a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" fill="#fff"></path></svg>
+                    <div class="tech-logo-name">Python</div>
+                </div>
+                <div class="tech-logo-card">
+                    <svg class="tech-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22.4 9.34c-.33-3.2-2.05-5.8-4.5-7.13A9.87 9.87 0 0 0 12.2 1C8.5 1 5.2 2.87 3.1 5.75c-1.5 2.08-2.2 4.5-2.1 7V12l.1.2c.3 1.2 1.1 2.3 1.9 3.1.7.7 1.6 1.3 2.5 1.7l.1.1h.1v-.1c.1 0 .1 0 .2-.1l.1-.1c.2-.1.4-.2.5-.3.4-.2.7-.5 1.1-.8l.3-.3.2-.3c.2-.3.4-.6.5-.9.1-.3.2-.6.3-.9.1-.3.1-.6.1-.9v-.2H8v-1.9h1.9v-1.9H8v-1.9h1.9V8.3H8V6.4h1.9V4.5H8V2.6h3.8v1.9h1.9v1.9h1.9v1.9h1.9v1.9h-2.2c-.2 1.1-.6 2.1-1.2 3-.6.8-1.4 1.5-2.3 1.9a6.7 6.7 0 0 1-4.7 0c-.9-.4-1.7-1.1-2.3-1.9-.6-.8-1-1.8-1.2-2.9H1.6c0 .4.1.8.2 1.2a6.4 6.4 0 0 0 2.3 3.8c1.1 1 2.5 1.6 4 1.8h8.2c.3-1 .5-2 .5-3.1.1-.6 0-1.2-.1-1.8z" fill="#0db7ed"></path></svg>
+                    <div class="tech-logo-name">Docker</div>
                 </div>
             </div>
         </div>
@@ -723,8 +711,8 @@
                     <div class="member-avatar">
                         <i data-lucide="user"></i>
                     </div>
-                    <h3>Ruben Quimper</h3>
-                    <p class="member-role">Lead Data Engineer</p>
+                    <h3>Ruben Quispe</h3>
+                    <p class="member-role">Data Engineer</p>
                     <p class="member-focus">Orquestación, BigQuery, DataProc</p>
                     <div class="member-contributions">
                         <h4>Contribuciones Principales:</h4>
