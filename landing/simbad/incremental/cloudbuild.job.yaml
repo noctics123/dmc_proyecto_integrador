@@ -23,33 +23,21 @@ steps:
 - name: gcr.io/cloud-builders/docker
   args: [ 'push', '${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:${_IMAGE_TAG}' ]
 
-# 3) Crear/actualizar Job incremental
-- name: gcr.io/google.com/cloudsdktool/cloud-sdk
-  entrypoint: bash
+# 3) Deploy as Cloud Run Service (simplificado)
+- name: 'gcr.io/cloud-builders/gcloud'
   args:
-    - -c
-    - |
-      # Check if job exists to determine action
-      if gcloud run jobs describe ${_JOB} --region ${_REGION} >/dev/null 2>&1; then
-        echo "Job exists, updating..."
-        gcloud run jobs update ${_JOB} \
-      else
-        echo "Job does not exist, creating..."
-        gcloud run jobs create ${_JOB} \
-      fi \
-        --region ${_REGION} \
-        --image ${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:${_IMAGE_TAG} \
-        --service-account ${_SERVICE_ACCOUNT} \
-        --task-timeout=30m \
-        --max-retries=2 \
-        --set-env-vars=GCS_BUCKET=${_BUCKET} \
-        --set-env-vars=LANDING_PREFIX=lakehouse/landing/simbad \
-        --set-env-vars=SB_TIPO_ENTIDAD=AAyP \
-        --set-env-vars=SB_DATASET=simbad_carteras_aayp_hipotecarios \
-        --set-env-vars=SB_LOOKBACK_MONTHS=${_SB_LOOKBACK_MONTHS} \
-        --set-env-vars=PYTHONUNBUFFERED=1 \
-        --set-env-vars=SB_API_KEY=dff2111ccbcd44c2ac47265b658949f3 \
-        --labels=type=incremental,purpose=scheduled
+    - 'run'
+    - 'deploy'
+    - '${_JOB}'
+    - '--image'
+    - '${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:${_IMAGE_TAG}'
+    - '--region'
+    - '${_REGION}'
+    - '--platform'
+    - 'managed'
+    - '--allow-unauthenticated'
+    - '--set-env-vars'
+    - 'GCS_BUCKET=${_BUCKET},LANDING_PREFIX=lakehouse/landing/simbad,SB_TIPO_ENTIDAD=AAyP,SB_DATASET=simbad_carteras_aayp_hipotecarios,SB_LOOKBACK_MONTHS=${_SB_LOOKBACK_MONTHS},SB_API_KEY=dff2111ccbcd44c2ac47265b658949f3'
 
 images:
 - ${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:${_IMAGE_TAG}
