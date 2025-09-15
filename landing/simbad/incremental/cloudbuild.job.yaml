@@ -1,4 +1,7 @@
 # SIMBAD Incremental Job - Para ejecución programada con Cloud Scheduler
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 substitutions:
   _REGION: us-west2
   _AR_HOST: us-west2-docker.pkg.dev

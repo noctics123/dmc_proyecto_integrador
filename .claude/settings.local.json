@@ -16,7 +16,8 @@
       "Bash(gcloud builds:*)",
       "Bash(gcloud projects get-iam-policy:*)",
       "Bash(gh repo list:*)",
-      "Bash(gcloud beta builds submit:*)"
+      "Bash(gcloud beta builds submit:*)",
+      "Bash(gcloud iam service-accounts:*)"
     ],
     "deny": [],
     "ask": []
