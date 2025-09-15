@@ -12,7 +12,9 @@
       "Read(//c/Users/ruben/Downloads/**)",
       "Bash(gcloud config:*)",
       "Bash(bq:*)",
-      "Bash(gcloud scheduler jobs list:*)"
+      "Bash(gcloud scheduler jobs list:*)",
+      "Bash(gcloud builds:*)",
+      "Bash(gcloud projects get-iam-policy:*)"
     ],
     "deny": [],
     "ask": []

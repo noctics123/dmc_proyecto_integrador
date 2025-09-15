@@ -1,0 +1,86 @@
+# Main Cloud Build Configuration for DMC Pipeline
+# Triggers on main branch for landing services deployment
+
+steps:
+  # Step 1: Deploy SIMBAD Historical Service
+  - name: 'gcr.io/cloud-builders/gcloud'
+    dir: 'landing/simbad/historical'
+    args:
+      - 'builds'
+      - 'submit'
+      - '--config=cloudbuild.yaml'
+      - '--substitutions=_SERVICE_NAME=simbad-historical,_REGION=us-central1'
+    id: 'deploy-simbad-historical'
+
+  # Step 2: Deploy SIMBAD Incremental Service
+  - name: 'gcr.io/cloud-builders/gcloud'
+    dir: 'landing/simbad/incremental'
+    args:
+      - 'builds'
+      - 'submit'
+      - '--config=cloudbuild.yaml'
+      - '--substitutions=_SERVICE_NAME=simbad-incremental,_REGION=us-central1'
+    id: 'deploy-simbad-incremental'
+    waitFor: ['deploy-simbad-historical']
+
+  # Step 3: Deploy Macroeconomics Service
+  - name: 'gcr.io/cloud-builders/gcloud'
+    dir: 'landing/macroeconomics'
+    args:
+      - 'builds'
+      - 'submit'
+      - '--config=cloudbuild.yaml'
+      - '--substitutions=_SERVICE_NAME=macroeconomics-scraper,_REGION=us-central1'
+    id: 'deploy-macroeconomics'
+    waitFor: ['deploy-simbad-incremental']
+
+  # Step 4: Update BigQuery Stored Procedures
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Updating BigQuery stored procedures..."
+        for file in bigquery_processing/stored_procedures/*.sql; do
+          if [ -f "$file" ]; then
+            echo "Deploying stored procedure: $file"
+            bq query --use_legacy_sql=false < "$file"
+          fi
+        done
+    id: 'update-stored-procedures'
+    waitFor: ['deploy-macroeconomics']
+
+  # Step 5: Validate Deployment
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Validating deployment..."
+
+        # Check Cloud Run services
+        gcloud run services list --region=us-central1 --filter="name:simbad OR name:macroeconomics"
+
+        # Check BigQuery datasets
+        bq ls
+
+        # Check DataProc cluster
+        gcloud dataproc clusters list --region=us-central1
+
+        echo "Deployment validation completed"
+    id: 'validate-deployment'
+    waitFor: ['update-stored-procedures']
+
+# Options
+options:
+  machineType: 'E2_HIGHCPU_8'
+  substitution_option: 'ALLOW_LOOSE'
+  logging: 'CLOUD_LOGGING_ONLY'
+
+# Substitutions
+substitutions:
+  _PROJECT_ID: 'proyecto-integrador-dae-2025'
+  _REGION: 'us-central1'
+
+# Timeout
+timeout: '1800s'  # 30 minutes
