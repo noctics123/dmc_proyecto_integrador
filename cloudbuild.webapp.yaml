@@ -1,0 +1,30 @@
+# Archivo temporal para evitar builds fallidos
+# Los builds de web app han sido migrados a la nueva estructura
+
+steps:
+  # Paso informativo para indicar que la configuración ha cambiado
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "=============================================="
+        echo "AVISO: Esta configuración está obsoleta"
+        echo "=============================================="
+        echo "La estructura web_app/frontend ya no existe."
+        echo "Los servicios han sido migrados a:"
+        echo "  - Landing services: landing/"
+        echo "  - GitHub Pages: docs/ + index.html"
+        echo "  - BigQuery: bigquery_processing/"
+        echo ""
+        echo "Los nuevos triggers activos son:"
+        echo "  - macroeconomics-landing-trigger"
+        echo "  - simbad-historical-trigger"
+        echo "  - simbad-incremental-trigger"
+        echo ""
+        echo "Fin del aviso. Build completado sin acciones."
+        echo "=============================================="
+
+# Sin imágenes que generar
+options:
+  logging: CLOUD_LOGGING_ONLY
