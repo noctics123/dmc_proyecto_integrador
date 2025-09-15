@@ -14,7 +14,9 @@
       "Bash(bq:*)",
       "Bash(gcloud scheduler jobs list:*)",
       "Bash(gcloud builds:*)",
-      "Bash(gcloud projects get-iam-policy:*)"
+      "Bash(gcloud projects get-iam-policy:*)",
+      "Bash(gh repo list:*)",
+      "Bash(gcloud beta builds submit:*)"
     ],
     "deny": [],
     "ask": []

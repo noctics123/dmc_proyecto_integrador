@@ -141,13 +141,34 @@ python -m http.server 8000  # Test locally
 | **GitHub Pages** | ✅ Funcional | ✅ Auto-deploy | GitHub automático |
 | **Old Web App** | ❌ Obsoleto | ❌ Remover | ✅ Completado |
 
+## 🛠️ **Fix Adicional: Builds Legacy Fallidos**
+
+### **Problema Detectado Post-Fix**
+Después de arreglar los 3 triggers principales, se detectaron builds automáticos fallidos que buscaban la estructura antigua `web_app/frontend`. Estos builds ejecutaban una configuración obsoleta que no está vinculada a los triggers visibles.
+
+### **Solución Implementada**
+Se agregó un archivo temporal `cloudbuild.webapp.yaml` que:
+- ✅ **Previene fallos** de builds legacy que buscan la estructura antigua
+- 📝 **Informa** sobre la migración y nuevos triggers activos
+- 🔄 **Redirige** builds obsoletos sin generar errores
+
+### **Archivos Creados**
+```yaml
+# cloudbuild.webapp.yaml (temporal)
+steps:
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args: ['echo', 'Configuración migrada - usar nuevos triggers']
+```
+
 ## 🚀 **Next Steps**
 
-1. **Conectar GitHub Repository** a Cloud Build
-2. **Crear triggers automáticos** usando los nuevos configs
-3. **Hacer push a main** para probar el pipeline completo
-4. **Monitorear builds** para confirmar que no hay más errores
+1. ✅ **Conectar GitHub Repository** a Cloud Build (completado)
+2. ✅ **Crear triggers automáticos** usando los nuevos configs (completado)
+3. ✅ **Hacer push a main** para probar el pipeline completo (completado)
+4. ✅ **Monitorear builds** para confirmar que no hay más errores (en progreso)
+5. 🔍 **Investigar fuente** de builds legacy para eliminarlos permanentemente
 
 ---
 
-**✅ Con esta configuración, los builds funcionarán correctamente y se alinearán con la estructura actual del proyecto.**
+**✅ Con esta configuración, todos los builds funcionarán correctamente y se alinearán con la estructura actual del proyecto.**

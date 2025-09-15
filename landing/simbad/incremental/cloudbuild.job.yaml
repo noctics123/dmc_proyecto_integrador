@@ -9,15 +9,16 @@ substitutions:
   _BUCKET: dae-integrador-2025
   _SB_SECRET: sb_api_key
   _SB_LOOKBACK_MONTHS: "3"
+  _IMAGE_TAG: "latest"  # Por defecto 'latest', puede ser sobrescrito por triggers
 
 steps:
 # 1) Build
 - name: gcr.io/cloud-builders/docker
-  args: [ 'build', '-t', '${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:$COMMIT_SHA', 'landing/simbad/incremental' ]
+  args: [ 'build', '-t', '${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:${_IMAGE_TAG}', 'landing/simbad/incremental' ]
 
 # 2) Push
 - name: gcr.io/cloud-builders/docker
-  args: [ 'push', '${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:$COMMIT_SHA' ]
+  args: [ 'push', '${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:${_IMAGE_TAG}' ]
 
 # 3) Crear/actualizar Job incremental
 - name: gcr.io/google.com/cloudsdktool/cloud-sdk
@@ -25,12 +26,16 @@ steps:
   args:
     - -c
     - |
-      gcloud run jobs describe ${_JOB} --region ${_REGION} >/dev/null 2>&1 \
-      && ACTION=update || ACTION=create
-
-      gcloud run jobs ${ACTION} ${_JOB} \
+      # Check if job exists to determine action
+      if gcloud run jobs describe ${_JOB} --region ${_REGION} >/dev/null 2>&1; then
+        echo "Job exists, updating..."
+        gcloud run jobs update ${_JOB} \
+      else
+        echo "Job does not exist, creating..."
+        gcloud run jobs create ${_JOB} \
+      fi \
         --region ${_REGION} \
-        --image ${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:$COMMIT_SHA \
+        --image ${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:${_IMAGE_TAG} \
         --service-account ${_SERVICE_ACCOUNT} \
         --task-timeout=30m \
         --max-retries=2 \
@@ -44,4 +49,4 @@ steps:
         --labels=type=incremental,purpose=scheduled
 
 images:
-- ${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:$COMMIT_SHA
+- ${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/${_IMAGE}:${_IMAGE_TAG}
