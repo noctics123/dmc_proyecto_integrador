@@ -3,13 +3,14 @@
 // ========================================
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all components
     initNavigation();
     initTabs();
     initAOS();
     initChart();
     initScrollEffects();
     initFAQs();
-    initArchModal();
+    initArchModal(); // Final, comprehensive modal logic
 });
 
 function initAOS() {
@@ -137,7 +138,10 @@ function initArchModal() {
     modal.addEventListener('click', (e) => e.target === modal && closeModal());
 
     // --- KPI Panel Toggle --- //
-    kpiToggle.addEventListener('click', () => kpiPanel.classList.toggle('closed'));
+    kpiToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        kpiPanel.classList.toggle('closed');
+    });
 
     // --- Tooltip Logic --- //
     svg.querySelectorAll('.interactive-group').forEach(group => {
@@ -159,12 +163,10 @@ function initArchModal() {
     // --- Click to Highlight Flow --- //
     const resetHighlights = () => {
         allFlowElements.forEach(el => el.classList.remove('dimmed', 'highlighted'));
-        svg.onclick = null; // Remove body click listener
+        svg.onclick = null;
     };
 
-    svg.querySelectorAll('[data-flow]').forEach(el => {
-        if (!el.classList.contains('interactive-group')) return;
-
+    svg.querySelectorAll('.interactive-group[data-flow]').forEach(el => {
         el.addEventListener('click', (e) => {
             e.stopPropagation();
             const flow = el.getAttribute('data-flow');
@@ -180,8 +182,22 @@ function initArchModal() {
                     elem.classList.remove('highlighted');
                 }
             });
-            // Add a click listener to the main svg to reset
             svg.onclick = resetHighlights;
         });
     });
+}
+
+// ========================================
+// Utility Functions
+// ========================================
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
