@@ -3,22 +3,16 @@
 // ========================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all components
     initNavigation();
     initTabs();
-    initAnimations();
+    initAOS();
     initChart();
     initScrollEffects();
     initFAQs();
-    initArchitectureModal();
     initArchModal();
+});
 
-    // Initialize Lucide icons
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
-
-    // Initialize AOS animations
+function initAOS() {
     if (typeof AOS !== 'undefined') {
         AOS.init({
             duration: 600,
@@ -27,650 +21,167 @@ document.addEventListener('DOMContentLoaded', function() {
             offset: 100
         });
     }
-});
+}
 
-// ========================================
-// Navigation
-// ========================================
 function initNavigation() {
     const navbar = document.getElementById('navbar');
     const navToggle = document.getElementById('nav-toggle');
     const navMenu = document.getElementById('nav-menu');
-    const navLinks = document.querySelectorAll('.nav-link');
 
-    // Mobile menu toggle
     if (navToggle && navMenu) {
-        navToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            navToggle.classList.toggle('active');
-        });
+        navToggle.addEventListener('click', () => navMenu.classList.toggle('active'));
     }
 
-    // Close mobile menu when clicking on links
-    navLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            navMenu.classList.remove('active');
-            navToggle.classList.remove('active');
-        });
-    });
-
-    // Navbar scroll effect
-    let lastScrollY = window.scrollY;
-
     window.addEventListener('scroll', () => {
-        const currentScrollY = window.scrollY;
-
         if (navbar) {
-            if (currentScrollY > 100) {
-                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
-                navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
-            } else {
-                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-                navbar.style.boxShadow = 'none';
-            }
-        }
-
-        lastScrollY = currentScrollY;
-    });
-
-    // Active link highlighting based on scroll position
-    updateActiveNavLink();
-    window.addEventListener('scroll', debounce(updateActiveNavLink, 100));
-}
-
-function updateActiveNavLink() {
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-link');
-
-    let current = '';
-    const scrollY = window.scrollY;
-
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop - 100;
-        const sectionHeight = section.offsetHeight;
-
-        if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
-            current = section.getAttribute('id');
-        }
-    });
-
-    navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${current}`) {
-            link.classList.add('active');
+            navbar.classList.toggle('scrolled', window.scrollY > 100);
         }
     });
 }
 
-// ========================================
-// Tabs System
-// ========================================
 function initTabs() {
     const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
-
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const targetTab = button.getAttribute('data-tab');
-
-            // Remove active classes
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
-
-            // Add active classes
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             button.classList.add('active');
-            const targetContent = document.getElementById(`${targetTab}-tab`);
-            if (targetContent) {
-                targetContent.classList.add('active');
-
-                // Trigger animation for new content
-                const cards = targetContent.querySelectorAll('.service-detail-card');
-                cards.forEach((card, index) => {
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateY(20px)';
-
-                    setTimeout(() => {
-                        card.style.transition = 'all 0.3s ease-out';
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, index * 100);
-                });
-            }
+            document.getElementById(`${targetTab}-tab`).classList.add('active');
         });
     });
 }
 
-// ========================================
-// Animations
-// ========================================
-function initAnimations() {
-    // Hero data flow animation
-    animateDataFlow();
-
-    // Intersection Observer for scroll animations
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('fade-in-up');
-            }
-        });
-    }, observerOptions);
-
-    // Observe elements for animation
-    const animateElements = document.querySelectorAll('.metric-card, .service-detail-card, .component-category, .doc-card');
-    animateElements.forEach(el => observer.observe(el));
-}
-
-function animateDataFlow() {
-    const flowNodes = document.querySelectorAll('.flow-node');
-
-    if (flowNodes.length === 0) return;
-
-    let currentIndex = 0;
-
-    function animateNext() {
-        // Reset all nodes
-        flowNodes.forEach(node => {
-            node.style.transform = 'scale(1)';
-            node.style.background = 'rgba(255, 255, 255, 0.2)';
-        });
-
-        // Animate current node
-        const currentNode = flowNodes[currentIndex];
-        currentNode.style.transform = 'scale(1.1)';
-        currentNode.style.background = 'rgba(255, 255, 255, 0.4)';
-
-        currentIndex = (currentIndex + 1) % flowNodes.length;
-    }
-
-    // Start animation
-    animateNext();
-    setInterval(animateNext, 1500);
-}
-
-// ========================================
-// Chart Initialization
-// ========================================
 function initChart() {
     const chartCanvas = document.getElementById('pipelineChart');
-
     if (!chartCanvas || typeof Chart === 'undefined') return;
-
-    const ctx = chartCanvas.getContext('2d');
-
-    // Sample data representing pipeline metrics
-    const chartData = {
-        labels: ['Landing', 'Bronze', 'Silver', 'Gold'],
-        datasets: [{
-            label: 'Registros Procesados (Miles)',
-            data: [676, 676, 110, 5],
-            backgroundColor: [
-                'rgba(66, 133, 244, 0.8)',
-                'rgba(251, 188, 5, 0.8)',
-                'rgba(156, 163, 175, 0.8)',
-                'rgba(52, 168, 83, 0.8)'
-            ],
-            borderColor: [
-                'rgb(66, 133, 244)',
-                'rgb(251, 188, 5)',
-                'rgb(156, 163, 175)',
-                'rgb(52, 168, 83)'
-            ],
-            borderWidth: 2,
-            borderRadius: 8,
-            borderSkipped: false
-        }]
-    };
-
-    const chartConfig = {
+    new Chart(chartCanvas.getContext('2d'), {
         type: 'bar',
-        data: chartData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Volumen de Datos por Capa del Lakehouse',
-                    font: {
-                        size: 18,
-                        weight: 'bold'
-                    },
-                    padding: 20
-                },
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: 'white',
-                    bodyColor: 'white',
-                    cornerRadius: 8,
-                    displayColors: false,
-                    callbacks: {
-                        label: function(context) {
-                            const value = context.parsed.y;
-                            if (context.dataIndex === 0 || context.dataIndex === 1) {
-                                return `${value}K registros SIMBAD`;
-                            } else if (context.dataIndex === 2) {
-                                return `${value}K registros limpios`;
-                            } else {
-                                return `${value}K métricas agregadas`;
-                            }
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
-                    },
-                    ticks: {
-                        callback: function(value) {
-                            return value + 'K';
-                        }
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            animation: {
-                duration: 2000,
-                easing: 'easeOutQuart'
-            }
-        }
-    };
-
-    // Set canvas height
-    chartCanvas.style.height = '400px';
-
-    new Chart(ctx, chartConfig);
+        data: {
+            labels: ['Landing', 'Bronze', 'Silver', 'Gold'],
+            datasets: [{
+                label: 'Registros Procesados (Miles)',
+                data: [676, 676, 110, 5],
+                backgroundColor: ['#06b6d4', '#f59e0b', '#9ca3af', '#facc15']
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
 }
 
-// ========================================
-// Scroll Effects
-// ========================================
 function initScrollEffects() {
-    // Parallax effect for hero section
-    const hero = document.querySelector('.hero');
     const heroParticles = document.querySelector('.hero-particles');
-
-    if (hero && heroParticles) {
+    if (heroParticles) {
         window.addEventListener('scroll', () => {
-            const scrolled = window.scrollY;
-            const rate = scrolled * -0.5;
-
-            heroParticles.style.transform = `translateY(${rate}px)`;
+            heroParticles.style.transform = `translateY(${window.scrollY * -0.5}px)`;
         });
     }
-
-    // Counter animation for metrics
-    animateCounters();
 }
 
-function animateCounters() {
-    const counterElements = document.querySelectorAll('.metric-value');
-
-    const observerOptions = {
-        threshold: 0.5
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animateCounter(entry.target);
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    counterElements.forEach(el => observer.observe(el));
-}
-
-function animateCounter(element) {
-    const text = element.textContent.trim();
-    const isTime = text.includes('<');
-    const isPercentage = text.includes('%');
-
-    if (isTime || text.includes('K')) {
-        // Don't animate time or complex text
-        return;
-    }
-
-    const target = parseInt(text.replace(/[^\d]/g, ''));
-    if (isNaN(target)) return;
-
-    let current = 0;
-    const increment = target / 60; // 60 frames for 1 second at 60fps
-
-    function updateCounter() {
-        current += increment;
-
-        if (current >= target) {
-            element.textContent = text; // Reset to original text
-        } else {
-            const value = Math.floor(current);
-            if (isPercentage) {
-                element.textContent = value + '%';
-            } else {
-                element.textContent = value.toLocaleString();
-            }
-            requestAnimationFrame(updateCounter);
-        }
-    }
-
-    updateCounter();
-}
-
-// ========================================
-// Utility Functions
-// ========================================
-
-// Debounce function to limit function calls
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// Smooth scroll for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-
-        if (target) {
-            const offsetTop = target.offsetTop - 80; // Account for fixed navbar
-
-            window.scrollTo({
-                top: offsetTop,
-                behavior: 'smooth'
-            });
-        }
-    });
-});
-
-// Loading state management
-window.addEventListener('load', function() {
-    document.body.classList.add('loaded');
-
-    // Hide any loading spinners
-    const loaders = document.querySelectorAll('.loader');
-    loaders.forEach(loader => {
-        loader.style.display = 'none';
-    });
-});
-
-// Error handling for external resources
-window.addEventListener('error', function(e) {
-    console.warn('Resource failed to load:', e.target.src || e.target.href);
-
-    // Handle missing images
-    if (e.target.tagName === 'IMG') {
-        e.target.style.display = 'none';
-    }
-});
-
-// Performance monitoring
-if ('performance' in window) {
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            const perfData = performance.getEntriesByType('navigation')[0];
-            console.log('Page load time:', perfData.loadEventEnd - perfData.loadEventStart + 'ms');
-        }, 0);
-    });
-}
-
-// ========================================
-// Theme Toggle (Future Enhancement)
-// ========================================
-function initThemeToggle() {
-    const themeToggle = document.getElementById('theme-toggle');
-
-    if (!themeToggle) return;
-
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    const currentTheme = savedTheme || systemTheme;
-
-    document.documentElement.setAttribute('data-theme', currentTheme);
-
-    themeToggle.addEventListener('click', function() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-    });
-}
-
-// ========================================
-// Service Worker Registration (Future)
-// ========================================
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        // Future: Register service worker for offline functionality
-        // navigator.serviceWorker.register('/sw.js');
-    });
-}
-
-// ========================================
-// FAQs Functionality
-// ========================================
 function initFAQs() {
     const faqItems = document.querySelectorAll('.faq-item');
-    
     faqItems.forEach(item => {
         const question = item.querySelector('.faq-question');
-        
         if (question) {
             question.addEventListener('click', () => {
-                // Close other open FAQs
-                faqItems.forEach(otherItem => {
-                    if (otherItem !== item) {
-                        otherItem.classList.remove('active');
-                    }
-                });
-                
-                // Toggle current FAQ
-                item.classList.toggle('active');
+                const wasActive = item.classList.contains('active');
+                faqItems.forEach(other => other.classList.remove('active'));
+                if (!wasActive) item.classList.add('active');
             });
         }
     });
 }
 
 // ========================================
-// Architecture Modal
+// Architecture Modal (Final Version)
 // ========================================
 function initArchModal() {
     const modal = document.getElementById('arch-modal');
     const btn = document.getElementById('expand-arch-btn');
     const span = document.getElementById('arch-modal-close');
-
     if (!modal || !btn || !span) return;
 
     const svg = modal.querySelector('svg');
+    const kpiPanel = svg.getElementById('kpi-panel');
+    const kpiToggle = svg.getElementById('kpi-panel-toggle');
+    const tooltip = svg.getElementById('svg-tooltip');
+    const tooltipTitle = svg.getElementById('svg-tooltip-title');
+    const tooltipDesc = svg.getElementById('svg-tooltip-desc');
+    const tooltipCost = svg.getElementById('svg-tooltip-cost');
 
-    btn.onclick = function() {
+    const allFlowElements = svg.querySelectorAll('[data-flow]');
+
+    // --- Open/Close Modal --- //
+    btn.onclick = () => {
         modal.classList.add('visible');
-        if (svg) {
-            svg.classList.add('interactive-svg');
-            // Stagger animations for components
-            const components = svg.querySelectorAll('.interactive-group');
-            components.forEach((comp, index) => {
-                comp.style.animationDelay = `${0.5 + index * 0.1}s`;
-            });
-            // Stagger animations for flow paths
-            const paths = svg.querySelectorAll('.flow-path');
-            paths.forEach((path, index) => {
-                path.style.animationDelay = `${0.8 + index * 0.2}s`;
-            });
-        }
-    }
+        document.body.style.overflow = 'hidden';
+        svg.classList.add('animate');
+        // Stagger animations
+        svg.querySelectorAll('.interactive-svg.animate .interactive-group').forEach((el, i) => {
+            el.style.animationDelay = `${0.5 + i * 0.05}s`;
+        });
+        svg.querySelectorAll('.interactive-svg.animate .flow-path').forEach((el, i) => {
+            el.style.animationDelay = `${0.8 + i * 0.1}s`;
+        });
+    };
 
-    const closeModal = function() {
+    const closeModal = () => {
         modal.classList.remove('visible');
-        if (svg) {
-            svg.classList.remove('interactive-svg');
-        }
-    }
+        document.body.style.overflow = 'auto';
+        svg.classList.remove('animate');
+        resetHighlights();
+    };
 
     span.onclick = closeModal;
+    window.addEventListener('keydown', (e) => e.key === 'Escape' && closeModal());
+    modal.addEventListener('click', (e) => e.target === modal && closeModal());
 
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            closeModal();
-        }
-    }
+    // --- KPI Panel Toggle --- //
+    kpiToggle.addEventListener('click', () => kpiPanel.classList.toggle('closed'));
 
-    // SVG Interactivity
-    if (!svg) return;
-
-    const infoBox = svg.getElementById('info-box');
-    const infoTitle = svg.getElementById('info-title');
-    const infoDesc = document.getElementById('info-desc');
-
-    if (!infoBox || !infoTitle || !infoDesc) return;
-
+    // --- Tooltip Logic --- //
     svg.querySelectorAll('.interactive-group').forEach(group => {
         group.addEventListener('mousemove', (e) => {
-            const title = group.getAttribute('data-title');
-            const desc = group.getAttribute('data-desc');
-
-            infoTitle.textContent = title;
-            infoDesc.innerHTML = desc;
+            tooltipTitle.textContent = group.getAttribute('data-title') || '';
+            tooltipDesc.textContent = group.getAttribute('data-desc') || '';
+            tooltipCost.textContent = group.getAttribute('data-cost') || '';
 
             const pt = svg.createSVGPoint();
             pt.x = e.clientX;
             pt.y = e.clientY;
             const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
-
-            let newX = svgP.x + 20;
-            let newY = svgP.y - 10;
-
-            if ((newX + 300) > 1200) {
-                newX = svgP.x - 320;
-            }
-            if ((newY + 80) > 700) {
-                newY = svgP.y - 90;
-            }
-
-            infoBox.setAttribute('transform', `translate(${newX}, ${newY})`);
-            infoBox.style.opacity = '1';
+            tooltip.setAttribute('transform', `translate(${svgP.x + 20}, ${svgP.y - 90})`);
+            tooltip.style.opacity = '1';
         });
+        group.addEventListener('mouseleave', () => tooltip.style.opacity = '0');
+    });
 
-        group.addEventListener('mouseleave', () => {
-            infoBox.style.opacity = '0';
+    // --- Click to Highlight Flow --- //
+    const resetHighlights = () => {
+        allFlowElements.forEach(el => el.classList.remove('dimmed', 'highlighted'));
+        svg.onclick = null; // Remove body click listener
+    };
+
+    svg.querySelectorAll('[data-flow]').forEach(el => {
+        if (!el.classList.contains('interactive-group')) return;
+
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const flow = el.getAttribute('data-flow');
+            if (!flow) return;
+
+            allFlowElements.forEach(elem => {
+                const elFlows = elem.getAttribute('data-flow').split(',');
+                if (elFlows.includes(flow)) {
+                    elem.classList.add('highlighted');
+                    elem.classList.remove('dimmed');
+                } else {
+                    elem.classList.add('dimmed');
+                    elem.classList.remove('highlighted');
+                }
+            });
+            // Add a click listener to the main svg to reset
+            svg.onclick = resetHighlights;
         });
     });
 }
-
-// ========================================
-// Architecture Modal Functionality
-// ========================================
-function initArchitectureModal() {
-    const expandBtn = document.getElementById('expand-arch-btn');
-    const modal = document.getElementById('arch-modal');
-    const closeBtn = document.getElementById('arch-modal-close');
-
-    if (expandBtn && modal) {
-        expandBtn.addEventListener('click', () => {
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        });
-    }
-
-    if (closeBtn && modal) {
-        closeBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        });
-    }
-
-    // Close modal when clicking outside
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-            }
-        });
-    }
-
-    // Close modal with Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal && modal.style.display === 'block') {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-    });
-}
-
-function initArchModal() {
-    const modal = document.getElementById('arch-modal');
-    if (!modal) return;
-
-    const interactiveGroups = modal.querySelectorAll('.interactive-group');
-    const infoBox = modal.querySelector('#info-box');
-    const infoTitle = modal.querySelector('#info-title');
-    const infoDesc = modal.querySelector('#info-desc');
-
-    interactiveGroups.forEach(group => {
-        group.addEventListener('mouseenter', (e) => {
-            const title = group.getAttribute('data-title');
-            const desc = group.getAttribute('data-desc');
-            
-            if (title && desc && infoBox && infoTitle && infoDesc) {
-                infoTitle.textContent = title;
-                infoDesc.textContent = desc;
-                infoBox.style.opacity = '1';
-                infoBox.style.pointerEvents = 'auto';
-                
-                // Position the info box near the mouse
-                const rect = group.getBoundingClientRect();
-                const modalRect = modal.getBoundingClientRect();
-                const x = rect.left - modalRect.left + rect.width / 2;
-                const y = rect.top - modalRect.top - 100;
-                
-                infoBox.setAttribute('transform', `translate(${x}, ${y})`);
-            }
-        });
-
-        group.addEventListener('mouseleave', () => {
-            if (infoBox) {
-                infoBox.style.opacity = '0';
-                infoBox.style.pointerEvents = 'none';
-            }
-        });
-    });
-}
-
-// Export functions for external use
-window.DMCPipeline = {
-    initNavigation,
-    initTabs,
-    initAnimations,
-    initChart,
-    animateCounters,
-    debounce,
-    initFAQs,
-    initArchitectureModal,
-    initArchModal
-};
